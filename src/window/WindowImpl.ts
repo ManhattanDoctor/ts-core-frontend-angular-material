@@ -1,7 +1,6 @@
 import { MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject, Subscription, filter, takeUntil } from 'rxjs';
-import { IWindow, IWindowContent, ViewUtil, WindowBase, WindowEvent } from '@ts-core/angular';
-import { WindowConfig } from './WindowConfig';
+import { IWindow, IWindowConfig, IWindowContent, ViewUtil, WindowBase, WindowEvent } from '@ts-core/angular';
 import { WindowProperties } from './WindowProperties';
 import * as _ from 'lodash';
 import { WindowElement } from './component/WindowElement';
@@ -148,11 +147,6 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
 
         this.container.addEventListener('click', this.mouseClickHandlerProxy, true);
         this.container.addEventListener('mousedown', this.mouseDownHandlerProxy);
-        /*
-        if (!this.config.isModal) {
-            this.container.addEventListener('mousedown', this.mouseDownHandlerProxy);
-        }
-        */
 
         this.elementsCreate();
     }
@@ -188,7 +182,7 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
         this.getReference().updatePosition(position);
     }
 
-    protected getConfig(): WindowConfig {
+    protected getConfig(): IWindowConfig<T> {
         return this.properties.config;
     }
     protected getContainer(): HTMLElement {
@@ -408,7 +402,7 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
         return this.observer.asObservable();
     }
 
-    public get config(): WindowConfig {
+    public get config(): IWindowConfig<T> {
         return this.properties.config;
     }
 

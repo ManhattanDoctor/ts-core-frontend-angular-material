@@ -20,6 +20,10 @@
     mat-tab-group {
         outline: 0;
     }
+    mat-hint,
+    mat-error {
+        @include vi.mouse-inactive();
+    }
     mat-dialog-container {
         &:hover:not(.minimized) {
             vi-window-resize-element {
@@ -33,11 +37,21 @@
             display: none !important;
             pointer-events: none;
         }
+        .mdc-dialog__container {
+            .mdc-dialog__surface {
+                & > :first-child {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: var.$border-radius;
+                }
+            }
+        }
     }
     mat-bottom-sheet-container {
         padding: 0 !important;
         overflow: visible !important;
         & > :first-child {
+            width: 100%;
             height: 100%;
             border-radius: var.$border-radius;
             @include vi.scroll-vertical();
@@ -55,13 +69,21 @@
         }
     }
     mat-dialog-container,
+    mat-datepicker-content,
     mat-bottom-sheet-container {
+        box-sizing: content-box;
+        border-radius: var.$border-radius;
+        border-width: 1px;
+        border-style: solid;
+
         vi-window-close-element,
         vi-window-expand-element,
         vi-window-minimize-element {
             top: -16px;
             width: 32px;
             height: 32px;
+            border-width: 1px;
+            border-style: solid;
         }
         vi-window-close-element {
             right: -16px;
@@ -80,16 +102,6 @@
             }
         }
     }
-    mat-cell {
-        color: inherit !important;
-    }
-    mat-header-cell {
-        &:not(:hover),
-        &.mat-sort-header-disabled {
-            color: inherit !important;
-        }
-    }
-
     mat-expansion-panel {
         border-radius: 0 !important;
         border-bottom-width: 1px;
@@ -114,11 +126,9 @@
             padding: 0 !important;
         }
     }
-
     mat-progress-bar {
-        &.border {
+        &.border-line {
             height: 1px;
-            border: none !important;
             .mdc-linear-progress__buffer {
                 .mdc-linear-progress__buffer-dots {
                     display: none;
@@ -134,10 +144,28 @@
         }
     }
     mat-table {
-        background: none !important;
+        mat-row {
+            &.active {
+                mat-cell {
+                    @include vi.mouse-active();
+                }
+            }
+        }
+        .mat-column-item-menu {
+            max-width: 44px;
+            min-height: auto;
+            text-align: center;
+            justify-content: center;
+        }
     }
     mat-paginator {
-        background: none !important;
+        .mat-mdc-paginator-range-label {
+            margin: 0 4px;
+            @include vi.mouse-inactive();
+        }
+        .mat-mdc-paginator-page-size-label {
+            @include vi.mouse-inactive();
+        }
     }
     .mat-icon {
         width: unset !important;
@@ -163,17 +191,13 @@
             min-height: 40px !important;
         }
         &.vi-blink {
-            border-color: $text-primary;
             animation: blink 1s;
             animation-iteration-count: 5;
-            @keyframes blink { 
+            @keyframes blink {
                 50% {
                     border-color: transparent;
-                }  
+                }
             }
-        }
-        .mat-mdc-select-panel {
-            border-color: $border-color;
         }
         .mat-mdc-select-panel {
             padding: 0 !important;
@@ -189,15 +213,13 @@
             max-height: none !important;
             min-height: 0px !important;
         }
+        .mat-mdc-autocomplete-panel {
+            padding: 0 !important;
+        }
     }
     .mdc-tooltip__surface {
         max-height: inherit !important;
     }
-    .mat-mdc-paginator-range-label {
-        margin-left: 1rem;
-        margin-right: 1rem;
-    }
-
     // Text
     .mat-h1,
     .mat-h2,

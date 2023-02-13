@@ -26,3 +26,6 @@ export type ICdkTableCellStyleNameFunction<U> = (item: U, column: ICdkTableColum
 
 export type ICdkTableColumnClassNameFunction<U> = (item: U, column: ICdkTableColumn<U>) => string;
 export type ICdkTableColumnStyleNameFunction<U> = (item: U, column: ICdkTableColumn<U>) => { [key: string]: any };
+
+export const CDK_TABLE_COLUMN_MENU_NAME = 'item-menu';
+export const CdkTableColumnMenu = { name: CDK_TABLE_COLUMN_MENU_NAME, format: () => '⋮', headerId: '', isDisableSort: true };

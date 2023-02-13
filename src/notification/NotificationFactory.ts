@@ -1,4 +1,4 @@
-import { INotification } from './INotification';
+import { INotification } from '@ts-core/angular';
 import { NotificationProperties } from './NotificationProperties';
 
 export class NotificationFactory<U extends INotification> {

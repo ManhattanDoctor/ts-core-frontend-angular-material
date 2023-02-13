@@ -1,19 +1,32 @@
 import { ComponentType } from '@angular/cdk/portal';
-import { Injectable } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { ObservableData } from '@ts-core/common';
+import { MatDialog } from '@angular/material/dialog';
+import { ClassType, IDestroyable, ObservableData } from '@ts-core/common';
 import { ArrayUtil, DateUtil, ObjectUtil } from '@ts-core/common';
 import { LanguageService } from '@ts-core/frontend';
-import * as _ from 'lodash';
 import { Observable, Subject } from 'rxjs';
-import { QuestionManager, IQuestion, IQuestionOptions, QuestionMode, WindowEvent, WindowAlign } from '@ts-core/angular';
-import { INotification, NotificationEvent } from './INotification';
-import { INotificationContent } from './INotificationContent';
-import { NotificationConfig, NotificationConfigOptions } from './NotificationConfig';
+import {
+    QuestionManager,
+    IQuestion,
+    IQuestionOptions,
+    QuestionMode,
+    WindowEvent,
+    WindowAlign,
+    NotificationService,
+    INotification,
+    INotificationContent,
+    NotificationConfig,
+    NotificationServiceEvent,
+    INotificationConfig,
+    NotificationEvent,
+    NotificationConfigOptions,
+    NotificationId
+} from '@ts-core/angular';
 import { NotificationFactory } from './NotificationFactory';
+import { NotificationBaseComponent } from './component/NotificationBaseComponent';
+import { NotificationComponent } from './component/notification/notification.component';
+import * as _ from 'lodash';
 
-@Injectable({ providedIn: 'root' })
-export class NotificationService {
+export class NotificationServiceImpl extends NotificationService {
     // --------------------------------------------------------------------------
     //
     // 	Properties
@@ -21,28 +34,29 @@ export class NotificationService {
     // --------------------------------------------------------------------------
 
     public factory: NotificationFactory<INotification>;
-    public questionComponent: ComponentType<INotificationContent<any>>;
+    public questionComponent: ComponentType<INotificationContent>;
+
+    public gapY: number;
+    public closeDuration: number;
+
+    public minWidth: number;
+    public minHeight: number;
+
+    public paddingTop: number;
+    public paddingLeft: number;
+    public paddingRight: number;
+    public paddingBottom: number;
+
+    public verticalAlign: WindowAlign;
+    public horizontalAlign: WindowAlign;
 
     protected dialog: MatDialog;
     protected language: LanguageService;
+    protected observer: Subject<ObservableData<NotificationServiceEvent, INotification | INotificationConfig>>;
 
-    protected _configs: Array<NotificationConfig>;
-    protected _closedConfigs: Array<NotificationConfig>;
-    protected _notifications: Map<NotificationConfig, INotificationContent<any>>;
-
-    private observer: Subject<ObservableData<NotificationServiceEvent, INotification | NotificationConfig>>;
-
-    public gapY: number = 25;
-
-    public minWidth: number = 25;
-    public minHeight: number = 25;
-
-    public paddingTop: number = 25;
-    public paddingLeft: number = 25;
-    public paddingRight: number = 25;
-    public paddingBottom: number = 25;
-
-    public defaultCloseDuration: number = 10 * DateUtil.MILISECONDS_SECOND;
+    protected _configs: Array<INotificationConfig>;
+    protected _closedConfigs: Array<INotificationConfig>;
+    protected _notifications: Map<INotificationConfig, INotificationContent>;
 
     // --------------------------------------------------------------------------
     //
@@ -50,7 +64,9 @@ export class NotificationService {
     //
     // --------------------------------------------------------------------------
 
-    constructor(dialog: MatDialog, language: LanguageService) {
+    constructor(language: LanguageService, dialog: MatDialog) {
+        super();
+
         this._configs = [];
         this._closedConfigs = [];
         this._notifications = new Map();
@@ -58,6 +74,17 @@ export class NotificationService {
         this.dialog = dialog;
         this.language = language;
         this.observer = new Subject();
+
+        this.factory = new NotificationFactory(NotificationBaseComponent);
+        this.questionComponent = NotificationComponent;
+
+        this.verticalAlign = WindowAlign.START;
+        this.horizontalAlign = WindowAlign.END;
+
+        this.gapY = 25;
+        this.minWidth = this.minHeight = 25;
+        this.paddingTop = this.paddingLeft = this.paddingRight = this.paddingBottom = 25;
+        this.closeDuration = 10 * DateUtil.MILLISECONDS_SECOND;
     }
 
     // --------------------------------------------------------------------------
@@ -66,26 +93,29 @@ export class NotificationService {
     //
     // --------------------------------------------------------------------------
 
-    public open<T>(component: ComponentType<INotificationContent<T>>, config: NotificationConfig): INotificationContent<T> {
-        let notification = null;
+    public open<U extends INotificationContent<T>, T>(component: ClassType<U>, config: INotificationConfig<T>): U {
+        let notification: INotification<T> = null;
+        let content: INotificationContent<T> = null;
         if (!_.isNil(config.id)) {
-            notification = this.getById(config.id);
-            if (notification) {
-                return notification.content;
+            notification = this.getById<T>(config.id);
+            if (!_.isNil(notification)) {
+                content = notification.content;
+                return content as U;
             }
         }
 
         this.setDefaultProperties(config);
 
-        let reference: MatDialogRef<INotificationContent<T>> = this.dialog.open(component, config);
-        notification = this.factory.create({ config, reference, overlay: reference['_ref'].overlayRef });
+        let info = this.openNotification<U, T>(component, config);
+        notification = info.notification;
+        content = info.content;
 
         let subscription = notification.events.subscribe(event => {
             switch (event) {
                 case WindowEvent.OPENED:
-                    this.add(config, reference.componentInstance);
+                    this.add(config, content);
                     this.checkPosition(notification);
-                    if (config.sound) {
+                    if (!_.isNil(config.sound)) {
                         // Assets.playSound(config.sound);
                     }
                     break;
@@ -101,7 +131,7 @@ export class NotificationService {
                     break;
             }
         });
-        return notification.content;
+        return content as U;
     }
 
     // --------------------------------------------------------------------------
@@ -110,19 +140,18 @@ export class NotificationService {
     //
     // --------------------------------------------------------------------------
 
-    private getById(id: string): INotification {
+    protected getById<T>(id: string): INotification<T> {
         let item = _.find(Array.from(this._notifications.values()), item => item.config.id === id);
         return !_.isNil(item) ? item.notification : null;
     }
 
-    private setDefaultProperties(config: NotificationConfig): void {
+    protected setDefaultProperties<T>(config: INotificationConfig<T>): void {
         if (_.isNaN(config.defaultMinWidth)) {
             config.defaultMinWidth = this.minWidth;
         }
         if (_.isNaN(config.defaultMinHeight)) {
             config.defaultMinHeight = this.minHeight;
         }
-
         if (_.isNaN(config.paddingTop)) {
             config.paddingTop = this.paddingTop;
         }
@@ -135,24 +164,31 @@ export class NotificationService {
         if (_.isNaN(config.paddingBottom)) {
             config.paddingBottom = this.paddingBottom;
         }
-
         if (_.isNaN(config.closeDuration)) {
-            config.closeDuration = this.defaultCloseDuration;
+            config.closeDuration = this.closeDuration;
+        }
+        if (_.isNil(config.verticalAlign)) {
+            config.verticalAlign = this.verticalAlign;
+        }
+        if (_.isNil(config.horizontalAlign)) {
+            config.horizontalAlign = this.horizontalAlign;
         }
 
-        config.verticalAlign = WindowAlign.START;
-        config.horizontalAlign = WindowAlign.END;
-        config.setDefaultProperties();
+        config.isModal = config['hasBackdrop'] = false;
+
+        if (config instanceof NotificationConfig) {
+            config.setDefaultProperties();
+        }
     }
 
-    private checkPosition(item: INotification): void {
+    protected checkPosition<T>(item: INotification<T>): void {
         let previous = this.getPrevious(item);
         if (!_.isNil(previous)) {
             item.setY(previous.getY() + previous.getHeight() + this.gapY);
         }
     }
 
-    private getPrevious(value: INotification): INotification {
+    protected getPrevious<T>(value: INotification<T>): INotification {
         if (this.notifications.size === 0) {
             return null;
         }
@@ -169,13 +205,19 @@ export class NotificationService {
         return null;
     }
 
+    protected openNotification<U extends INotificationContent<T>, T>(component: ClassType<U>, config: INotificationConfig<T>): INotificationInfo<T> {
+        let reference = this.dialog.open<INotificationContent<T>>(component, config);
+        let notification = this.factory.create({ config, reference, overlay: reference['_ref'].overlayRef });
+        return { notification, content: reference.componentInstance };
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Setters Methods
     //
     // --------------------------------------------------------------------------
 
-    private add<T>(config: NotificationConfig, content: INotificationContent<T>): void {
+    private add<T>(config: INotificationConfig<T>, content: INotificationContent<T>): void {
         this._configs.push(config);
         this.observer.next(new ObservableData(NotificationServiceEvent.ADDED, config));
 
@@ -189,7 +231,7 @@ export class NotificationService {
     //
     // --------------------------------------------------------------------------
 
-    public get(value: NotificationId): NotificationConfig {
+    public get<T>(value: NotificationId<T>): INotificationConfig<T> {
         if (_.isNil(value)) {
             return null;
         }
@@ -209,11 +251,11 @@ export class NotificationService {
         return null;
     }
 
-    public has(value: NotificationId): boolean {
+    public has<T>(value: NotificationId<T>): boolean {
         return !_.isNil(this.get(value));
     }
 
-    public remove(value: NotificationId): void {
+    public remove<T>(value: NotificationId<T>): void {
         let config = this.get(value);
         if (_.isNil(config)) {
             return;
@@ -223,14 +265,17 @@ export class NotificationService {
         ArrayUtil.remove(this._configs, config);
         ArrayUtil.remove(this._closedConfigs, config);
         this.observer.next(new ObservableData(NotificationServiceEvent.REMOVED, config));
-        config.destroy();
+
+        if (IDestroyable.instanceOf(config)) {
+            config.destroy();
+        }
     }
 
-    public removeAll(): void {
+    public closeAll(): void {
         this.configs.forEach(item => this.remove(item));
     }
 
-    public close(value: NotificationId): INotification {
+    public close<T>(value: NotificationId<T>): INotification<T> {
         let config = this.get(value);
         if (_.isNil(config)) {
             return null;
@@ -269,28 +314,24 @@ export class NotificationService {
     //
     // --------------------------------------------------------------------------
 
-    public get events(): Observable<ObservableData<NotificationServiceEvent, NotificationConfig | INotification>> {
+    public get events(): Observable<ObservableData<NotificationServiceEvent, INotificationConfig | INotification>> {
         return this.observer.asObservable();
     }
 
-    public get configs(): Array<NotificationConfig> {
+    public get configs(): Array<INotificationConfig> {
         return this._configs;
     }
 
-    public get closedConfigs(): Array<NotificationConfig> {
+    public get closedConfigs(): Array<INotificationConfig> {
         return this._closedConfigs;
     }
 
-    public get notifications(): Map<NotificationConfig, INotificationContent<any>> {
+    public get notifications(): Map<INotificationConfig, INotificationContent> {
         return this._notifications;
     }
 }
 
-export type NotificationId = string | NotificationConfig | NotificationConfigOptions;
-
-export enum NotificationServiceEvent {
-    OPENED = 'OPENED',
-    CLOSED = 'CLOSED',
-    ADDED = 'ADDED',
-    REMOVED = 'REMOVED'
+export interface INotificationInfo<T> {
+    notification: INotification<T>;
+    content: INotificationContent<T>;
 }

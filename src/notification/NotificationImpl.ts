@@ -1,9 +1,6 @@
 import { MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject, filter, takeUntil } from 'rxjs';
-import { ViewUtil, WindowBase, WindowEvent } from '@ts-core/angular';
-import { INotification, NotificationEvent } from './INotification';
-import { INotificationContent } from './INotificationContent';
-import { NotificationConfig } from './NotificationConfig';
+import { INotification, INotificationConfig, INotificationContent, NotificationEvent, ViewUtil, WindowBase, WindowEvent } from '@ts-core/angular';
 import { NotificationProperties } from './NotificationProperties';
 import * as _ from 'lodash';
 
@@ -16,7 +13,7 @@ export class NotificationImpl<T = any> extends WindowBase implements INotificati
 
     private _container: HTMLElement;
 
-    protected properties: NotificationProperties;
+    protected properties: NotificationProperties<T>;
 
     protected timer: any;
     protected observer: Subject<string>;
@@ -27,7 +24,7 @@ export class NotificationImpl<T = any> extends WindowBase implements INotificati
     //
     // --------------------------------------------------------------------------
 
-    constructor(properties: NotificationProperties) {
+    constructor(properties: NotificationProperties<T>) {
         super();
         this.observer = new Subject();
 
@@ -89,13 +86,13 @@ export class NotificationImpl<T = any> extends WindowBase implements INotificati
         this.getReference().updatePosition(position);
     }
 
-    protected getConfig(): NotificationConfig {
+    protected getConfig(): INotificationConfig<T> {
         return this.properties.config;
     }
     protected getContainer(): HTMLElement {
         return this.container;
     }
-    protected getReference(): MatDialogRef<INotificationContent> {
+    protected getReference(): MatDialogRef<INotificationContent<T>> {
         return this.properties.reference;
     }
 
@@ -195,7 +192,7 @@ export class NotificationImpl<T = any> extends WindowBase implements INotificati
         return this.observer.asObservable();
     }
 
-    public get config(): NotificationConfig {
+    public get config(): INotificationConfig<T> {
         return this.properties.config;
     }
 

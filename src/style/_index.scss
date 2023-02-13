@@ -15,13 +15,23 @@
     $primary: map.get($theme, 'primary');
     $foreground: map.get($theme, 'foreground');
     $background: map.get($theme, 'background');
+
+    $text-color: map.get($foreground, 'text');
     $border-color: map.get($foreground, 'divider');
 
-    $text-primary: mat.get-color-from-palette($primary);
-
     body {
-        color: map.get($foreground, 'text');
+        color: $text-color;
         background-color: map.get($background, 'body');
+    }
+    mat-dialog-container,
+    mat-datepicker-content,
+    mat-bottom-sheet-container {
+        border-color: $border-color;
+        vi-window-close-element,
+        vi-window-expand-element,
+        vi-window-minimize-element {
+            border-color: $border-color;
+        }
     }
     mat-form-field {
         .mdc-text-field {
@@ -40,7 +50,7 @@
                     .mdc-notched-outline__notch,
                     .mdc-notched-outline__leading,
                     .mdc-notched-outline__trailing {
-                        border-color: mat.get-color-from-palette($foreground, 'base') !important;
+                        border-color: mat.get-color-from-palette($primary) !important;
                     }
                 }
                 &.mdc-text-field--focused {
@@ -57,7 +67,7 @@
         border-bottom-color: $border-color;
     }
     mat-progress-bar {
-        &.border {
+        &.border-line {
             &:not(.transparent) {
                 .mdc-linear-progress__buffer {
                     .mdc-linear-progress__buffer-bar {
@@ -74,18 +84,34 @@
             }
         }
     }
-    mat-cell {
-        border-bottom-color: $border-color !important;
-        &:last-child {
-            border-bottom-color: transparent;
+    mat-table {
+        background: none !important;
+        mat-row {
+            mat-cell {
+                border-bottom-color: $border-color !important;
+                &:last-child {
+                    border-bottom-color: transparent;
+                }
+            }
         }
-        &.active {
-            background-color: map.get($background, 'hover') !important;
+        mat-header-row {
+            mat-header-cell {
+                &:not(:hover),
+                &.mat-sort-header-disabled {
+                    color: $text-color !important;
+                }
+            }
         }
+    }
+    mat-paginator {
+        background: none !important;
+    }
+    .mat-mdc-paginator {
+        color: $text-color !important;
     }
     .cdk-overlay-pane {
         &.vi-blink {
-            border-color: $text-primary;
+            border-color: mat.get-color-from-palette($primary);
         }
         .mat-mdc-select-panel {
             border-color: $border-color;
@@ -116,40 +142,40 @@
         @include typography.level($typography, 'body-1', false);
     }
     .mat-headline-1 {
-        @include typography.level($typography, 'headline-1');
+        @include typography.level($typography, 'headline-1', false);
     }
     .mat-headline-2 {
-        @include typography.level($typography, 'headline-2');
+        @include typography.level($typography, 'headline-2', false);
     }
     .mat-headline-3 {
-        @include typography.level($typography, 'headline-3');
+        @include typography.level($typography, 'headline-3', false);
     }
     .mat-headline-4 {
-        @include typography.level($typography, 'headline-4');
+        @include typography.level($typography, 'headline-4', false);
     }
     .mat-headline-5 {
-        @include typography.level($typography, 'headline-5');
+        @include typography.level($typography, 'headline-5', false);
     }
     .mat-headline-6 {
-        @include typography.level($typography, 'headline-6');
+        @include typography.level($typography, 'headline-6', false);
     }
     .mat-subtitle-2 {
-        @include typography.level($typography, 'subtitle-2');
+        @include typography.level($typography, 'subtitle-2', false);
     }
     .mat-subtitle-1 {
-        @include typography.level($typography, 'subtitle-1');
+        @include typography.level($typography, 'subtitle-1', false);
     }
     .mat-body-2 {
-        @include typography.level($typography, 'body-2');
+        @include typography.level($typography, 'body-2', false);
     }
     .mat-body-1 {
-        @include typography.level($typography, 'body-1');
+        @include typography.level($typography, 'body-1', false);
     }
     .mat-caption {
-        @include typography.level($typography, 'caption');
+        @include typography.level($typography, 'caption', false);
     }
     .mat-button {
-        @include typography.level($typography, 'button');
+        @include typography.level($typography, 'button', false);
     }
 }
 @mixin theme($theme, $typography) {
@@ -161,4 +187,3 @@
         @include typography($typography);
     }
 }
-

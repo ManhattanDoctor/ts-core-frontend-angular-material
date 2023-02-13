@@ -26,23 +26,19 @@ export class WindowBaseComponent extends WindowDragable {
 
     protected elementsCreate(): void {
         super.elementsCreate();
-
         if (!(this.content.container instanceof ViewContainerRef)) {
             return;
         }
 
-        if (!this.config.disableClose) {
+        if (!this.config.isDisableClose) {
             this.elementAdd(this.content.container.createComponent(WindowBaseComponent.CLOSE_COMPONENT));
         }
-
         if (this.config.isResizeable) {
             this.elementAdd(this.content.container.createComponent(WindowBaseComponent.RESIZE_COMPONENT));
         }
-
         if (this.config.isMinimizable) {
             this.elementAdd(this.content.container.createComponent(WindowBaseComponent.MINIMIZE_COMPONENT));
         }
-
         if (this.config.isExpandable) {
             this.elementAdd(this.content.container.createComponent(WindowBaseComponent.EXPAND_COMPONENT));
         }

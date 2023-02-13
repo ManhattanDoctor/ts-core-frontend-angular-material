@@ -1,9 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DestroyableContainer } from '@ts-core/common';
-import * as _ from 'lodash';
 import { filter, takeUntil } from 'rxjs';
-import { NotificationConfig } from '../notification/NotificationConfig';
-import { NotificationService, NotificationServiceEvent } from '../notification/NotificationService';
+import * as _ from 'lodash';
+import { INotificationConfig, NotificationService, NotificationServiceEvent } from '@ts-core/angular';
 
 export class ShellBaseComponent extends DestroyableContainer {
     // --------------------------------------------------------------------------
@@ -90,7 +89,7 @@ export class ShellBaseComponent extends DestroyableContainer {
         return `(min-width: 1000px)`;
     }
 
-    public get notificationItems(): Array<NotificationConfig> {
+    public get notificationItems(): Array<INotificationConfig> {
         return this.notifications.closedConfigs;
     }
 }

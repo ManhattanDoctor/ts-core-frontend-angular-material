@@ -25,7 +25,7 @@ export class BottomSheetBaseComponent extends BottomSheetImpl {
         if (!(this.content.container instanceof ViewContainerRef)) {
             return;
         }
-        if (!this.config.disableClose) {
+        if (!this.config.isDisableClose) {
             this.elementAdd(this.content.container.createComponent(BottomSheetBaseComponent.CLOSE_COMPONENT));
         }
         if (this.config.isExpandable) {

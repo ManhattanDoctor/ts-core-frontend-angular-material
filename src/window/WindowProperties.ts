@@ -1,10 +1,9 @@
 import { MatDialogRef } from '@angular/material/dialog';
 import { OverlayRef } from '@angular/cdk/overlay';
-import { WindowConfig } from './WindowConfig';
-import { IWindowContent } from '@ts-core/angular';
+import { IWindowConfig, IWindowContent } from '@ts-core/angular';
 
-export interface WindowProperties<U = any> {
-    reference?: MatDialogRef<IWindowContent<U>>;
-    config?: WindowConfig;
+export interface WindowProperties<T = any> {
+    config?: IWindowConfig<T>;
     overlay?: OverlayRef;
+    reference?: MatDialogRef<IWindowContent<T>>;
 }

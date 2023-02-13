@@ -2,9 +2,8 @@ import { Observable, Subject, takeUntil, Subscription } from 'rxjs';
 import * as _ from 'lodash';
 import { DestroyableContainer } from '@ts-core/common';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { WindowConfig } from '../window/WindowConfig';
 import { WindowProperties } from '../window/WindowProperties';
-import { IWindow, IWindowContent, ViewUtil, WindowEvent } from '@ts-core/angular';
+import { IWindow, IWindowConfig, IWindowContent, ViewUtil, WindowEvent } from '@ts-core/angular';
 import { WindowElement } from '../window/component/WindowElement';
 import { ArrayUtil } from '@ts-core/common';
 import { ComponentRef } from '@angular/core';
@@ -115,7 +114,7 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
 
     protected commitIsDisabledProperties(): void {}
 
-    protected getConfig(): WindowConfig {
+    protected getConfig<T>(): IWindowConfig<T> {
         return this.properties.config;
     }
     protected getContainer(): HTMLElement {
@@ -263,7 +262,7 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
         return this.observer.asObservable();
     }
 
-    public get config(): WindowConfig {
+    public get config(): IWindowConfig {
         return this.properties.config;
     }
 

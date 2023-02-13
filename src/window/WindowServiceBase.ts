@@ -1,86 +1,55 @@
-import { ComponentType } from '@angular/cdk/portal';
-import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Destroyable } from '@ts-core/common';
-import { ObservableData } from '@ts-core/common';
+import { ObservableData, ClassType, Destroyable } from '@ts-core/common';
 import { LanguageService } from '@ts-core/frontend';
-import * as _ from 'lodash';
 import { Observable, Subject } from 'rxjs';
-import { BottomSheetService } from '../bottomSheet/BottomSheetService';
-import { ViewUtil, CookieService, QuestionManager, IQuestion, IQuestionOptions, QuestionMode, WindowAlign, IWindowConfig } from '@ts-core/angular';
-import { WindowQuestionComponent } from './component/window-question/window-question.component';
-import { WindowBaseComponent } from './component/WindowBaseComponent';
-import { IWindowContent, IWindow, WindowEvent } from '@ts-core/angular';
-import { WindowConfig, WindowConfigOptions } from './WindowConfig';
-import { WindowFactory } from './WindowFactory';
-import { WindowServiceEvent } from './WindowServiceEvent';
+import {
+    CookieService,
+    IQuestion,
+    IQuestionOptions,
+    IWindow,
+    IWindowConfig,
+    IWindowContent,
+    QuestionManager,
+    QuestionMode,
+    ViewUtil,
+    WindowAlign,
+    WindowConfig,
+    WindowConfigOptions,
+    WindowEvent,
+    WindowId,
+    WindowService,
+    WindowServiceEvent
+} from '@ts-core/angular';
+import * as _ from 'lodash';
 
-@Injectable({ providedIn: 'root' })
-export class WindowService extends Destroyable {
-    // --------------------------------------------------------------------------
-    //
-    // 	Constants
-    //
-    // --------------------------------------------------------------------------
-
-    public static Z_INDEX_MAX = 1000;
-
-    // --------------------------------------------------------------------------
-    //
-    // 	Static Methods
-    //
-    // --------------------------------------------------------------------------
-
-    public static getZIndex(window: IWindow): number {
-        return !_.isNil(window) && !_.isNil(window.container) ? parseInt(ViewUtil.getStyle(window.container.parentElement, 'zIndex'), 10) : -1;
-    }
-
-    public static setZIndex(window: IWindow, index: number): void {
-        if (_.isNil(window)) {
-            return;
-        }
-        if (!_.isNil(window.backdrop)) {
-            ViewUtil.setStyle(window.backdrop, 'zIndex', index);
-        }
-        if (!_.isNil(window.wrapper)) {
-            ViewUtil.setStyle(window.wrapper, 'zIndex', index);
-        }
-    }
-
+export abstract class WindowServiceBase extends WindowService {
     // --------------------------------------------------------------------------
     //
     // 	Properties
     //
     // --------------------------------------------------------------------------
 
-    public factory: WindowFactory<IWindow>;
-    public questionComponent: ComponentType<IWindowContent>;
-    public isNeedCheckPositionAfterOpen: boolean = true;
+    public gapX: number;
+    public gapY: number;
 
-    protected dialog: MatDialog;
+    public minWidth: number;
+    public minHeight: number;
+
+    public paddingTop: number;
+    public paddingLeft: number;
+    public paddingRight: number;
+    public paddingBottom: number;
+
+    public verticalAlign: WindowAlign;
+    public horizontalAlign: WindowAlign;
+
+    public topZIndex: number;
+    public isNeedCheckPositionAfterOpen: boolean;
+
     protected language: LanguageService;
+    protected observer: Subject<ObservableData<WindowServiceEvent, IWindow>>;
+    protected properties: WindowPropertiesManager;
 
-    private _windows: Map<WindowConfig, IWindowContent>;
-
-    private observer: Subject<ObservableData<WindowServiceEvent, IWindow>>;
-    private properties: PropertiesManager;
-
-    public gapX: number = 25;
-    public gapY: number = 25;
-
-    public minWidth: number = 100;
-    public minHeight: number = 100;
-
-    public paddingTop: number = 25;
-    public paddingLeft: number = 25;
-    public paddingRight: number = 25;
-    public paddingBottom: number = 25;
-
-    public defaultVerticalAlign: WindowAlign = WindowAlign.CENTER;
-    public defaultHorizontalAlign: WindowAlign = WindowAlign.CENTER;
-
-    public topZIndex: number = WindowService.Z_INDEX_MAX;
-    // public topZIndex: number = 1001;
+    protected _windows: Map<IWindowConfig, IWindowContent>;
 
     // --------------------------------------------------------------------------
     //
@@ -88,17 +57,21 @@ export class WindowService extends Destroyable {
     //
     // --------------------------------------------------------------------------
 
-    constructor(dialog: MatDialog, language: LanguageService, cookies: CookieService, private sheet: BottomSheetService) {
+    constructor(language: LanguageService, cookies: CookieService) {
         super();
-        this._windows = new Map();
-
-        this.dialog = dialog;
         this.language = language;
-        this.observer = new Subject();
-        this.properties = new PropertiesManager(cookies);
 
-        this.factory = new WindowFactory(WindowBaseComponent);
-        this.questionComponent = WindowQuestionComponent;
+        this._windows = new Map();
+        this.observer = new Subject();
+        this.properties = new WindowPropertiesManager(cookies);
+
+        this.topZIndex = 1000;
+        this.verticalAlign = this.horizontalAlign = WindowAlign.CENTER;
+        this.isNeedCheckPositionAfterOpen = true;
+
+        this.gapX = this.gapY = 25;
+        this.minWidth = this.minHeight = 100;
+        this.paddingTop = this.paddingLeft = this.paddingRight = this.paddingBottom = 25;
     }
 
     // --------------------------------------------------------------------------
@@ -107,20 +80,16 @@ export class WindowService extends Destroyable {
     //
     // --------------------------------------------------------------------------
 
-    private sortFunction(first: IWindow, second: IWindow): number {
-        return WindowService.getZIndex(first) > WindowService.getZIndex(second) ? -1 : 1;
-    }
-
-    private updateTop(): void {
+    protected updateTop(): void {
         let zIndex = 0;
         let topWindow: IWindow = null;
 
-        let windows = [...this.windowsArray, this.sheet.window];
+        let windows = this.windowsGet();
         for (let window of windows) {
             if (_.isNil(window) || _.isNil(window.container)) {
                 continue;
             }
-            let index = WindowService.getZIndex(window);
+            let index = this.zIndexGet(window);
             if (zIndex >= index) {
                 continue;
             }
@@ -135,9 +104,9 @@ export class WindowService extends Destroyable {
         this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, topWindow));
     }
 
-    private setWindowOnTop(topWindow: IWindow): void {
+    protected setWindowOnTop(topWindow: IWindow): void {
         let currentIndex = this.topZIndex - 2;
-        let windows = [...this.windowsArray, this.sheet.window];
+        let windows = this.windowsGet();
         for (let window of windows) {
             if (_.isNil(window) || _.isNil(window.container)) {
                 continue;
@@ -145,31 +114,48 @@ export class WindowService extends Destroyable {
             window.isOnTop = window === topWindow;
 
             let zIndex = window.isOnTop ? this.topZIndex : currentIndex--;
-            WindowService.setZIndex(window, zIndex);
+            this.zIndexSet(window, zIndex);
         }
 
-        this.windowsArray.sort(this.sortFunction);
+        this.windowsArray.sort(this.zIndexSortFunction);
         this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, topWindow));
     }
 
-    private checkPosition(item: IWindow): void {
+    protected checkPosition<T>(item: IWindow<T>): void {
         while (this.hasSamePosition(item)) {
             item.move(item.getX() + this.gapX, item.getY() + this.gapY);
         }
     }
 
-    private hasSamePosition(itemWindow: IWindow): boolean {
-        let x = itemWindow.getX();
-        let y = itemWindow.getY();
-
-        let result = false;
-        this.windowsArray.forEach(window => {
-            if (window !== itemWindow && x === window.getX() && y === window.getY()) {
-                result = true;
-            }
-        });
-        return result;
+    protected hasSamePosition<T>(window: IWindow<T>): boolean {
+        let x = window.getX();
+        let y = window.getY();
+        return this.windowsArray.some(item => item !== window && x === item.getX() && y === item.getY());
     }
+
+    protected windowsGet(): Array<IWindow> {
+        return this.windowsArray;
+    }
+
+    protected zIndexGet(window: IWindow): number {
+        return !_.isNil(window) && !_.isNil(window.container) ? parseInt(ViewUtil.getStyle(window.container.parentElement, 'zIndex'), 10) : -1;
+    }
+
+    protected zIndexSet(window: IWindow, index: number): void {
+        if (_.isNil(window)) {
+            return;
+        }
+        if (!_.isNil(window.wrapper)) {
+            ViewUtil.setStyle(window.wrapper, 'zIndex', index);
+        }
+        if (!_.isNil(window.backdrop)) {
+            ViewUtil.setStyle(window.backdrop, 'zIndex', index);
+        }
+    }
+
+    protected zIndexSortFunction = (first: IWindow, second: IWindow): number => {
+        return this.zIndexGet(first) > this.zIndexGet(second) ? -1 : 1;
+    };
 
     // --------------------------------------------------------------------------
     //
@@ -177,14 +163,14 @@ export class WindowService extends Destroyable {
     //
     // --------------------------------------------------------------------------
 
-    private add(config: WindowConfig, content: IWindowContent): void {
+    protected add<T>(config: IWindowConfig<T>, content: IWindowContent<T>): void {
         this._windows.set(config, content);
         this.observer.next(new ObservableData(WindowServiceEvent.OPENED, content.window));
     }
 
-    private remove(config: WindowConfig): void {
+    protected remove<T>(config: IWindowConfig<T>): void {
         let window = this._windows.get(config);
-        if (!window) {
+        if (_.isNil(window)) {
             return null;
         }
 
@@ -193,17 +179,17 @@ export class WindowService extends Destroyable {
         this.observer.next(new ObservableData(WindowServiceEvent.CLOSED, window.window));
     }
 
-    private getById<T>(id: string): IWindow<T> {
+    protected getById<T>(id: string): IWindow<T> {
         let item = _.find(Array.from(this._windows.values()), item => item.config.id === id);
         return !_.isNil(item) ? item.window : null;
     }
 
-    private setDefaultProperties(config: WindowConfig): void {
+    protected setDefaultProperties<T>(config: IWindowConfig<T>): void {
         if (_.isNil(config.verticalAlign)) {
-            config.verticalAlign = this.defaultVerticalAlign;
+            config.verticalAlign = this.verticalAlign;
         }
         if (_.isNil(config.horizontalAlign)) {
-            config.horizontalAlign = this.defaultHorizontalAlign;
+            config.horizontalAlign = this.horizontalAlign;
         }
         if (_.isNaN(config.defaultMinWidth)) {
             config.defaultMinWidth = this.minWidth;
@@ -223,10 +209,16 @@ export class WindowService extends Destroyable {
         if (_.isNaN(config.paddingBottom)) {
             config.paddingBottom = this.paddingBottom;
         }
-        if (config.propertiesId) {
+
+        config['hasBackdrop'] = config.isModal;
+        config['disableClose'] = config.isDisableClose;
+
+        if (!_.isNil(config.propertiesId)) {
             this.properties.load(config.propertiesId, config);
         }
-        config.setDefaultProperties();
+        if (config instanceof WindowConfig) {
+            config.setDefaultProperties();
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -235,29 +227,28 @@ export class WindowService extends Destroyable {
     //
     // --------------------------------------------------------------------------
 
-    public open<T extends IWindowContent>(component: ComponentType<T>, config: WindowConfig): T {
+    public open<U extends IWindowContent<T>, T>(component: ClassType<U>, config: IWindowConfig<T>): U {
         let window: IWindow<T> = null;
-        if (config.id) {
-            window = this.getById(config.id);
+        let content: IWindowContent<T> = null;
+        if (!_.isNil(config.id)) {
+            window = this.getById<T>(config.id);
             if (!_.isNil(window)) {
-                return window.content as T;
+                content = window.content;
+                return content as U;
             }
         }
 
         this.setDefaultProperties(config);
 
-        // let dialog = this.dialog as any;
-        // dialog._getOverlayState = config.isModal ? dialog.getOverlayStateModal : dialog.getOverlayStateNonModal;
-
-        let reference = this.dialog.open<IWindowContent>(component, config);
-        window = this.factory.create({ config, reference, overlay: reference['_ref'].overlayRef });
+        let info = this.openWindow<U, T>(component, config);
+        window = info.window;
+        content = info.content;
 
         this.observer.next(new ObservableData(WindowServiceEvent.OPEN_STARTED, window));
-
         let subscription = window.events.subscribe(event => {
             switch (event) {
                 case WindowEvent.OPENED:
-                    this.add(config, reference.componentInstance);
+                    this.add(config, content);
                     this.setWindowOnTop(window);
                     if (this.isNeedCheckPositionAfterOpen) {
                         this.checkPosition(window);
@@ -284,38 +275,35 @@ export class WindowService extends Destroyable {
                     break;
             }
         });
-        return window.content as T;
+        return content as U;
     }
 
-    public get(value: WindowId): IWindowContent {
+    public get<T>(value: WindowId<T>): IWindowContent<T> {
         let id = value.toString();
-        if (value instanceof WindowConfig) {
+        if (_.isObject(value)) {
             id = value.id;
         }
-        if (!id) {
+        if (_.isNil(id)) {
             return null;
         }
-        let window = this.getById(id);
-        if (_.isNil(window)) {
-            return null;
-        }
-        return window.content;
+        let window = this.getById<T>(id);
+        return !_.isNil(window) ? window.content : null;
     }
 
-    public has(value: WindowId): boolean {
+    public has<T>(value: WindowId<T>): boolean {
         return !_.isNil(this.get(value));
     }
 
-    public setOnTop(value: WindowId): boolean {
+    public setOnTop<T>(value: WindowId<T>): boolean {
         let content = this.get(value);
-        if (!content) {
+        if (_.isNil(content)) {
             return false;
         }
         content.window.setOnTop();
         return true;
     }
 
-    public removeAll(): void {
+    public closeAll(): void {
         this.windowsArray.forEach(window => window.close());
     }
 
@@ -324,26 +312,24 @@ export class WindowService extends Destroyable {
             return;
         }
         super.destroy();
-        this.removeAll();
-
+        this.closeAll();
         if (!_.isNil(this.observer)) {
             this.observer.complete();
             this.observer = null;
         }
-
         if (!_.isNil(this.properties)) {
             this.properties.destroy();
             this.properties = null;
         }
-
-        this.factory = null;
-        this.questionComponent = null;
-
-        this.dialog = null;
         this.language = null;
-
         this._windows = null;
     }
+
+    protected abstract openWindow<U extends IWindowContent<T>, T>(component: ClassType<U>, config: IWindowConfig<T>): IWindowInfo<T>;
+
+    protected abstract openInfo<T>(config: IWindowConfig<T>): IQuestion;
+
+    protected abstract openQuestion<T>(config: IWindowConfig<T>): IQuestion;
 
     // --------------------------------------------------------------------------
     //
@@ -353,16 +339,16 @@ export class WindowService extends Destroyable {
 
     public info(translationId?: string, translation?: any, questionOptions?: IQuestionOptions, configOptions?: WindowConfigOptions): IQuestion {
         let text = this.language.translate(translationId, translation);
-        let config: WindowConfig<QuestionManager> = _.assign(new WindowConfig(true, false, 450), configOptions);
+        let config: IWindowConfig<QuestionManager> = _.assign(new WindowConfig(true, false, 450), configOptions);
         config.data = new QuestionManager(_.assign(questionOptions, { mode: QuestionMode.INFO, text }));
-        return this.open(this.questionComponent, config).config.data;
+        return this.openQuestion(config);
     }
 
     public question(translationId?: string, translation?: any, questionOptions?: IQuestionOptions, configOptions?: WindowConfigOptions): IQuestion {
         let text = this.language.translate(translationId, translation);
-        let config: WindowConfig<QuestionManager> = _.assign(new WindowConfig(true, false, 450), configOptions);
+        let config: IWindowConfig<QuestionManager> = _.assign(new WindowConfig(true, false, 450), configOptions);
         config.data = new QuestionManager(_.assign(questionOptions, { mode: QuestionMode.QUESTION, text }));
-        return this.open(this.questionComponent, config).config.data;
+        return this.openQuestion(config);
     }
 
     // --------------------------------------------------------------------------
@@ -385,12 +371,12 @@ export class WindowService extends Destroyable {
         return this.observer.asObservable();
     }
 
-    public get windows(): Map<WindowConfig, IWindowContent> {
+    public get windows(): Map<IWindowConfig, IWindowContent> {
         return this._windows;
     }
 }
 
-export class PropertiesManager extends Destroyable {
+class WindowPropertiesManager extends Destroyable {
     // --------------------------------------------------------------------------
     //
     // 	Constructor
@@ -407,24 +393,21 @@ export class PropertiesManager extends Destroyable {
     //
     // --------------------------------------------------------------------------
 
-    public load(name: string, config: WindowConfig): void {
-        let item = this.cookies.getObject(name + 'Window') as any;
-        if (!item) {
+    public load<T>(name: string, config: IWindowConfig<T>): void {
+        let item = this.cookies.getObject(`${name}Window`) as IWindowConfig<T>;
+        if (_.isNil(item)) {
             return;
         }
         if (item.hasOwnProperty('width')) {
-            config.defaultWidth = item.width;
+            config.defaultWidth = item.width as any;
         }
         if (item.hasOwnProperty('height')) {
-            config.defaultHeight = item.height;
+            config.defaultHeight = item.height as any;
         }
     }
 
     public save(name: string, window: IWindow): void {
-        this.cookies.putObject(name + 'Window', {
-            width: window.getWidth(),
-            height: window.getHeight()
-        });
+        this.cookies.putObject(name + 'Window', { width: window.getWidth(), height: window.getHeight() });
     }
 
     public destroy(): void {
@@ -436,4 +419,7 @@ export class PropertiesManager extends Destroyable {
     }
 }
 
-export type WindowId = string | IWindowConfig;
+export interface IWindowInfo<T> {
+    window: IWindow<T>;
+    content: IWindowContent<T>;
+}

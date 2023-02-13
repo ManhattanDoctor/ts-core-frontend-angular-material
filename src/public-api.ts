@@ -31,29 +31,24 @@ export * from './directive/MenuTriggerForDirective';
 export * from './language/LanguageMatPaginatorIntl';
 export * from './language/LanguageMomentDateAdapter';
 //
-export * from './notification/INotification';
-export * from './notification/INotificationContent';
-export * from './notification/NotificationConfig';
 export * from './notification/NotificationFactory';
 export * from './notification/NotificationModule';
 export * from './notification/NotificationProperties';
-export * from './notification/NotificationService';
+export * from './notification/NotificationServiceImpl';
 export * from './notification/component/NotificationBaseComponent';
 export * from './notification/component/notification/notification.component';
 //
 export * from './bottomSheet/BottomSheetModule';
-export * from './bottomSheet/BottomSheetService';
+export * from './bottomSheet/BottomSheetServiceImpl';
 export * from './bottomSheet/component/BottomSheetBaseComponent';
 //
 export * from './service/BootstrapBreakpointService';
 //
 export * from './window/WindowImpl';
-export * from './window/WindowConfig';
 export * from './window/WindowModule';
 export * from './window/WindowFactory';
-export * from './window/WindowService';
+export * from './window/WindowServiceImpl';
 export * from './window/WindowProperties';
-export * from './window/WindowServiceEvent';
 export * from './window/component/WindowElement';
 export * from './window/component/WindowBaseComponent';
 export * from './window/component/WindowDragAreaDirective';

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
-import { MatDialogModule } from '@angular/material/dialog';
-import { LanguageModule, CookieModule } from '@ts-core/angular';
-import { WindowService } from './WindowService';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { LanguageModule, CookieModule, CookieService, WindowService, BottomSheetService } from '@ts-core/angular';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WindowDragAreaDirective } from './component/WindowDragAreaDirective';
@@ -11,8 +10,11 @@ import { WindowExpandElementComponent } from './component/window-expand-element/
 import { WindowResizeElementComponent } from './component/window-resize-element/window-resize-element.component';
 import { WindowMinimizeElementComponent } from './component/window-minimize-element/window-minimize-element.component';
 import { MatButtonModule } from '@angular/material/button';
+import { WindowServiceImpl } from './WindowServiceImpl';
+import { LanguageService } from '@ts-core/frontend';
+import { BottomSheetModule } from '../bottomSheet/BottomSheetModule';
 
-const IMPORTS = [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule];
+const IMPORTS = [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule, BottomSheetModule];
 const DECLARATIONS = [
     WindowDragAreaDirective,
     WindowQuestionComponent,
@@ -21,10 +23,19 @@ const DECLARATIONS = [
     WindowResizeElementComponent,
     WindowMinimizeElementComponent
 ];
+const PROVIDERS = [
+    {
+        provide: WindowService,
+        deps: [LanguageService, CookieService, MatDialog, BottomSheetService],
+        useFactory: (language: LanguageService, cookies: CookieService, dialog: MatDialog, sheet: BottomSheetService) =>
+            new WindowServiceImpl(language, cookies, dialog, sheet)
+    }
+];
 const EXPORTS = [...DECLARATIONS];
 
 @NgModule({
     imports: IMPORTS,
+    providers: PROVIDERS,
     declarations: DECLARATIONS,
     exports: EXPORTS
 })
