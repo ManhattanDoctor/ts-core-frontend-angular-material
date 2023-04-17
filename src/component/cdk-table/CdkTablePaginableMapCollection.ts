@@ -1,11 +1,15 @@
 import { CdkTableDataSource } from './CdkTableDataSource';
-import { PaginableDataSourceMapCollection } from '@ts-core/common';
+import { FilterableSort, PaginableDataSourceMapCollection } from '@ts-core/common';
 import { Sort } from '@angular/material/sort';
 import { PageEvent } from '@angular/material/paginator';
 import * as _ from 'lodash';
 import { CdkTableFilterableMapCollection } from './CdkTableFilterableMapCollection';
+import { ICdkTableSortableMapCollection } from './sort/ICdkTableSortableMapCollection';
 
-export abstract class CdkTablePaginableMapCollection<U, V, T = any> extends PaginableDataSourceMapCollection<U, V, T> {
+export abstract class CdkTablePaginableMapCollection<U, V, T = any>
+    extends PaginableDataSourceMapCollection<U, V, T>
+    implements ICdkTableSortableMapCollection<U, V, T>
+{
     // --------------------------------------------------------------------------
     //
     // 	Properties
@@ -52,6 +56,10 @@ export abstract class CdkTablePaginableMapCollection<U, V, T = any> extends Pagi
     // 	Public Methods
     //
     // --------------------------------------------------------------------------
+
+    public getSortByColumn(name: string): FilterableSort<U | V> {
+        return this.sort;
+    }
 
     public destroy(): void {
         if (this.isDestroyed) {

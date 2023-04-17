@@ -1,10 +1,14 @@
-import { PaginableBookmarkDataSourceMapCollection } from '@ts-core/common';
+import { FilterableSort, PaginableBookmarkDataSourceMapCollection } from '@ts-core/common';
 import { CdkTableDataSource } from './CdkTableDataSource';
 import * as _ from 'lodash';
 import { CdkTableFilterableMapCollection } from './CdkTableFilterableMapCollection';
 import { Sort } from '@angular/material/sort';
+import { ICdkTableSortableMapCollection } from './sort/ICdkTableSortableMapCollection';
 
-export abstract class CdkTablePaginableBookmarkMapCollection<U, V> extends PaginableBookmarkDataSourceMapCollection<U, V> {
+export abstract class CdkTablePaginableBookmarkMapCollection<U, V, T = any>
+    extends PaginableBookmarkDataSourceMapCollection<U, V, T>
+    implements ICdkTableSortableMapCollection<U, V, T>
+{
     // --------------------------------------------------------------------------
     //
     // 	Properties
@@ -45,6 +49,10 @@ export abstract class CdkTablePaginableBookmarkMapCollection<U, V> extends Pagin
     // 	Public Methods
     //
     // --------------------------------------------------------------------------
+
+    public getSortByColumn(name: string): FilterableSort<U | V> {
+        return this.sort;
+    }
 
     public destroy(): void {
         super.destroy();

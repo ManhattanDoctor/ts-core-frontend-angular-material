@@ -12,6 +12,7 @@ export * from './component/cdk-table/CdkTableDataSource';
 export * from './component/cdk-table/CdkTablePaginableMapCollection';
 export * from './component/cdk-table/CdkTableFilterableMapCollection';
 export * from './component/cdk-table/CdkTablePaginableBookmarkMapCollection';
+export * from './component/cdk-table/sort/ICdkTableSortableMapCollection';
 export * from './component/cdk-table/row/ICdkTableRow';
 export * from './component/cdk-table/row/CdkTableRowClassNamePipe';
 export * from './component/cdk-table/row/CdkTableRowStyleNamePipe';

@@ -93,6 +93,9 @@
                     border-bottom-color: transparent;
                 }
             }
+            .mdc-data-table__cell {
+                color: inherit;
+            }
         }
         mat-header-row {
             mat-header-cell {

@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "15.0.31",
+    "version": "15.0.33",
     "description": "Modules for frontend based on angular material",
     "main": "public-api.js",
     "author": {

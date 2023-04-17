@@ -1,17 +1,21 @@
 import { CdkTableDataSource } from './CdkTableDataSource';
-import { FilterableDataSourceMapCollection } from '@ts-core/common';
-import * as _ from 'lodash';
+import { FilterableDataSourceMapCollection, FilterableSort } from '@ts-core/common';
 import { ObjectUtil } from '@ts-core/common';
 import { Sort, SortDirection } from '@angular/material/sort';
+import { ICdkTableSortableMapCollection } from './sort/ICdkTableSortableMapCollection';
+import * as _ from 'lodash';
 
-export abstract class CdkTableFilterableMapCollection<U, V, T = any> extends FilterableDataSourceMapCollection<U, V, T> {
+export abstract class CdkTableFilterableMapCollection<U, V, T = any>
+    extends FilterableDataSourceMapCollection<U, V, T>
+    implements ICdkTableSortableMapCollection<U, V, T>
+{
     // --------------------------------------------------------------------------
     //
     // 	Static Methods
     //
     // --------------------------------------------------------------------------
 
-    public static getSort<U, V = any, T = any>(collection: FilterableDataSourceMapCollection<U, V, T>): Sort {
+    public static getSort<U, V, T>(collection: ICdkTableSortableMapCollection<U, V, T>): Sort {
         if (_.isNil(collection) || _.isEmpty(collection.sort)) {
             return null;
         }
@@ -20,7 +24,7 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any> extends Fil
         return { active, direction };
     }
 
-    public static applySortEvent<U, V = any>(item: FilterableDataSourceMapCollection<U, V>, event: Sort): boolean {
+    public static applySortEvent<U, V, T>(item: ICdkTableSortableMapCollection<U, V, T>, event: Sort): boolean {
         let value = undefined;
         if (event.direction === 'asc') {
             value = true;
@@ -28,12 +32,13 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any> extends Fil
         if (event.direction === 'desc') {
             value = false;
         }
-
-        if (value === item.sort[event.active]) {
+        let name = event.active;
+        let sort = item.getSortByColumn(name);
+        if (value === sort[name]) {
             return false;
         }
-        ObjectUtil.clear(item.sort);
-        item.sort[event.active] = value;
+        ObjectUtil.clear(sort);
+        sort[name] = value;
         return true;
     }
 
@@ -60,18 +65,6 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any> extends Fil
         return new CdkTableDataSource(this);
     }
 
-    // --------------------------------------------------------------------------
-    //
-    // 	Event Handlers
-    //
-    // --------------------------------------------------------------------------
-
-    public sortEventHandler(event: Sort): void {
-        if (CdkTableFilterableMapCollection.applySortEvent(this, event)) {
-            this.reload();
-        }
-    }
-
     protected sortFunction(first: U, second: U, event: Sort): number {
         if (_.isEmpty(event.direction)) {
             return 0;
@@ -85,11 +78,28 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any> extends Fil
             return isHigher ? 1 : -1;
         }
     }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Event Handlers
+    //
+    // --------------------------------------------------------------------------
+
+    public sortEventHandler(event: Sort): void {
+        if (CdkTableFilterableMapCollection.applySortEvent(this, event)) {
+            this.reload();
+        }
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Public Methods
     //
     // --------------------------------------------------------------------------
+
+    public getSortByColumn(name: string): FilterableSort<U | V> {
+        return this.sort;
+    }
 
     public destroy(): void {
         if (this.isDestroyed) {
