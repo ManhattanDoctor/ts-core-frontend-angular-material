@@ -43,6 +43,7 @@ export * from './bottomSheet/BottomSheetModule';
 export * from './bottomSheet/BottomSheetServiceImpl';
 export * from './bottomSheet/component/BottomSheetBaseComponent';
 //
+export * from './service/PortalService';
 export * from './service/BootstrapBreakpointService';
 //
 export * from './window/WindowImpl';

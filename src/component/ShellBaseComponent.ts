@@ -81,13 +81,19 @@ export class ShellBaseComponent extends DestroyableContainer {
 
     // --------------------------------------------------------------------------
     //
-    // 	Public Properties
+    // 	Protected Properties
     //
     // --------------------------------------------------------------------------
 
     protected get sideMediaQueryToCheck(): string {
         return `(min-width: 1000px)`;
     }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Public Properties
+    //
+    // --------------------------------------------------------------------------
 
     public get notificationItems(): Array<INotificationConfig> {
         return this.notifications.closedConfigs;

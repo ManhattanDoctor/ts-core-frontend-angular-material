@@ -238,6 +238,7 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
     public getY(): number {
         return NaN;
     }
+
     public setY(value: number, isNeedNotify: boolean = true): void {}
 
     public move(x: number, y: number): void {}

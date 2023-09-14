@@ -7,7 +7,7 @@ import * as _ from 'lodash';
 
 export abstract class CdkTableFilterableMapCollection<U, V, T = any>
     extends FilterableDataSourceMapCollection<U, V, T>
-    implements ICdkTableSortableMapCollection<U, V, T>
+    implements ICdkTableSortableMapCollection<U, T>
 {
     // --------------------------------------------------------------------------
     //
@@ -15,7 +15,7 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any>
     //
     // --------------------------------------------------------------------------
 
-    public static getSort<U, V, T>(collection: ICdkTableSortableMapCollection<U, V, T>): Sort {
+    public static getSort<U, V, T>(collection: ICdkTableSortableMapCollection<U, T>): Sort {
         if (_.isNil(collection) || _.isEmpty(collection.sort)) {
             return null;
         }
@@ -24,7 +24,7 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any>
         return { active, direction };
     }
 
-    public static applySortEvent<U, V, T>(item: ICdkTableSortableMapCollection<U, V, T>, event: Sort): boolean {
+    public static applySortEvent<U, V, T>(item: ICdkTableSortableMapCollection<U, T>, event: Sort): boolean {
         let value = undefined;
         if (event.direction === 'asc') {
             value = true;
@@ -97,7 +97,7 @@ export abstract class CdkTableFilterableMapCollection<U, V, T = any>
     //
     // --------------------------------------------------------------------------
 
-    public getSortByColumn(name: string): FilterableSort<U | V> {
+    public getSortByColumn(name: string): FilterableSort<U | T> {
         return this.sort;
     }
 

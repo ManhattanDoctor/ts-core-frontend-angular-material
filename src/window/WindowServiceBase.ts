@@ -39,6 +39,9 @@ export abstract class WindowServiceBase extends WindowService {
     public paddingRight: number;
     public paddingBottom: number;
 
+    public autoFocus: string;
+    public delayFocusTrap: boolean;
+
     public verticalAlign: WindowAlign;
     public horizontalAlign: WindowAlign;
 
@@ -66,7 +69,9 @@ export abstract class WindowServiceBase extends WindowService {
         this.properties = new WindowPropertiesManager(cookies);
 
         this.topZIndex = 1000;
+        this.autoFocus = 'dialog';
         this.verticalAlign = this.horizontalAlign = WindowAlign.CENTER;
+        this.delayFocusTrap = true;
         this.isNeedCheckPositionAfterOpen = true;
 
         this.gapX = this.gapY = 25;
@@ -185,6 +190,12 @@ export abstract class WindowServiceBase extends WindowService {
     }
 
     protected setDefaultProperties<T>(config: IWindowConfig<T>): void {
+        if (_.isNil(config.delayFocusTrap)) {
+            config.delayFocusTrap = this.delayFocusTrap;
+        }
+        if (_.isNil(config.autoFocus)) {
+            config.autoFocus = this.autoFocus;
+        }
         if (_.isNil(config.verticalAlign)) {
             config.verticalAlign = this.verticalAlign;
         }
@@ -303,8 +314,15 @@ export abstract class WindowServiceBase extends WindowService {
         return true;
     }
 
+    public close<T>(value: WindowId<T>): void {
+        let item = this.get(value);
+        if (!_.isNil(item)) {
+            item.close();
+        }
+    }
+
     public closeAll(): void {
-        this.windowsArray.forEach(window => window.close());
+        this.windowsArray.forEach(item => item.close());
     }
 
     public destroy(): void {

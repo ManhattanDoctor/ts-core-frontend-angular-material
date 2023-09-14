@@ -7,7 +7,7 @@ import { ICdkTableSortableMapCollection } from './sort/ICdkTableSortableMapColle
 
 export abstract class CdkTablePaginableBookmarkMapCollection<U, V, T = any>
     extends PaginableBookmarkDataSourceMapCollection<U, V, T>
-    implements ICdkTableSortableMapCollection<U, V, T>
+    implements ICdkTableSortableMapCollection<U, T>
 {
     // --------------------------------------------------------------------------
     //
@@ -50,7 +50,7 @@ export abstract class CdkTablePaginableBookmarkMapCollection<U, V, T = any>
     //
     // --------------------------------------------------------------------------
 
-    public getSortByColumn(name: string): FilterableSort<U | V> {
+    public getSortByColumn(name: string): FilterableSort<U | T> {
         return this.sort;
     }
 

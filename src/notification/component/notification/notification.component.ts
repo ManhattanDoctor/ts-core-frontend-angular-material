@@ -19,7 +19,6 @@ export class NotificationComponent extends NotificationQuestionBaseComponent {
     constructor(container: ViewContainerRef, private language: LanguageService, private notifications: NotificationService) {
         super(container);
         ViewUtil.addClasses(container.element, 'd-block');
-        ViewUtil.setAttribute(container.element, 'tabindex', '-1');
     }
 
     // --------------------------------------------------------------------------

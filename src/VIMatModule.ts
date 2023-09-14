@@ -1,5 +1,5 @@
-import { NgModule } from '@angular/core';
-import { VIModule } from '@ts-core/angular';
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { BottomSheetService, IVIOptions, VIModule, WindowService } from '@ts-core/angular';
 import { BottomSheetModule } from './bottomSheet/BottomSheetModule';
 import { NotificationModule } from './notification/NotificationModule';
 import { WindowModule } from './window/WindowModule';
@@ -33,30 +33,13 @@ import { CdkTableColumnStyleNamePipe } from './component/cdk-table/column/CdkTab
 import { CdkTableColumnClassNamePipe } from './component/cdk-table/column/CdkTableColumnClassNamePipe';
 import { CdkTableRowClassNamePipe } from './component/cdk-table/row/CdkTableRowClassNamePipe';
 import { CdkTableRowStyleNamePipe } from './component/cdk-table/row/CdkTableRowStyleNamePipe';
-import { LanguageService } from '@ts-core/frontend';
 import { LanguageMatPaginatorIntl } from './language/LanguageMatPaginatorIntl';
+import { BootstrapBreakpointService } from './service/BootstrapBreakpointService';
+import { PortalService } from './service/PortalService';
+import { LanguageService } from '@ts-core/frontend';
 import * as _ from 'lodash';
 
-const IMPORTS = [
-    VIModule,
-    WindowModule,
-    BottomSheetModule,
-    NotificationModule,
-
-    CommonModule,
-    FormsModule,
-    MatTabsModule,
-    MatListModule,
-    MatMenuModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatSortModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatProgressBarModule
-];
-
-const DECLARATIONS = [
+let declarations = [
     CdkTableCellValuePipe,
     CdkTableCellValuePipePure,
     CdkTableCellClassNamePipe,
@@ -77,19 +60,57 @@ const DECLARATIONS = [
 
     MenuTriggerForDirective
 ];
-const PROVIDERS = [
-    {
-        provide: MatPaginatorIntl,
-        deps: [LanguageService],
-        useClass: LanguageMatPaginatorIntl
-    }
-];
-const EXPORTS = [...IMPORTS, ...DECLARATIONS];
 
 @NgModule({
-    imports: IMPORTS,
-    declarations: DECLARATIONS,
-    providers: PROVIDERS,
-    exports: EXPORTS
+    imports: [
+        VIModule,
+        WindowModule,
+        BottomSheetModule,
+        NotificationModule,
+
+        CommonModule,
+        FormsModule,
+        MatTabsModule,
+        MatListModule,
+        MatMenuModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatSortModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatProgressBarModule
+    ],
+    exports: [VIModule, WindowModule, BottomSheetModule, NotificationModule, ...declarations],
+    declarations
 })
-export class VIMatModule {}
+export class VIMatModule {
+    // --------------------------------------------------------------------------
+    //
+    // 	Static Methods
+    //
+    // --------------------------------------------------------------------------
+
+    public static forRoot(options?: IVIOptions): ModuleWithProviders<VIMatModule> {
+        return {
+            ngModule: VIMatModule,
+            providers: [
+                {
+                    provide: MatPaginatorIntl,
+                    deps: [LanguageService],
+                    useClass: LanguageMatPaginatorIntl
+                },
+                {
+                    provide: PortalService,
+                    deps: [WindowService, BottomSheetService, BootstrapBreakpointService],
+                    useClass: PortalService
+                },
+
+                ...VIModule.forRoot(options).providers,
+
+                ...WindowModule.forRoot().providers,
+                ...BottomSheetModule.forRoot().providers,
+                ...NotificationModule.forRoot().providers
+            ]
+        };
+    }
+}

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LanguageModule, CookieModule, CookieService, WindowService, BottomSheetService } from '@ts-core/angular';
 import { CommonModule } from '@angular/common';
@@ -14,8 +14,7 @@ import { WindowServiceImpl } from './WindowServiceImpl';
 import { LanguageService } from '@ts-core/frontend';
 import { BottomSheetModule } from '../bottomSheet/BottomSheetModule';
 
-const IMPORTS = [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule, BottomSheetModule];
-const DECLARATIONS = [
+let declarations = [
     WindowDragAreaDirective,
     WindowQuestionComponent,
     WindowCloseElementComponent,
@@ -23,20 +22,32 @@ const DECLARATIONS = [
     WindowResizeElementComponent,
     WindowMinimizeElementComponent
 ];
-const PROVIDERS = [
-    {
-        provide: WindowService,
-        deps: [LanguageService, CookieService, MatDialog, BottomSheetService],
-        useFactory: (language: LanguageService, cookies: CookieService, dialog: MatDialog, sheet: BottomSheetService) =>
-            new WindowServiceImpl(language, cookies, dialog, sheet)
-    }
-];
-const EXPORTS = [...DECLARATIONS];
-
 @NgModule({
-    imports: IMPORTS,
-    providers: PROVIDERS,
-    declarations: DECLARATIONS,
-    exports: EXPORTS
+    imports: [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule, BottomSheetModule],
+    exports: declarations,
+    declarations
 })
-export class WindowModule {}
+export class WindowModule {
+    // --------------------------------------------------------------------------
+    //
+    // 	Static Methods
+    //
+    // --------------------------------------------------------------------------
+
+    public static forRoot(): ModuleWithProviders<WindowModule> {
+        return {
+            ngModule: WindowModule,
+            providers: [
+                {
+                    provide: WindowService,
+                    deps: [LanguageService, CookieService, MatDialog, BottomSheetService],
+                    useFactory: windowServiceFactory
+                }
+            ]
+        };
+    }
+}
+
+export function windowServiceFactory(language: LanguageService, cookies: CookieService, dialog: MatDialog, sheet: BottomSheetService): WindowService {
+    return new WindowServiceImpl(language, cookies, dialog, sheet);
+}

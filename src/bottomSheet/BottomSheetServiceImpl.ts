@@ -139,7 +139,14 @@ export class BottomSheetServiceImpl extends BottomSheetService {
         return true;
     }
 
-    public close(): void {
+    public close<T>(value: WindowId<T>): void {
+        let item = this.get(value);
+        if (!_.isNil(item)) {
+            item.close();
+        }
+    }
+
+    public closeAll(): void {
         if (!_.isNil(this.window)) {
             this.window.close();
         }
@@ -150,7 +157,7 @@ export class BottomSheetServiceImpl extends BottomSheetService {
             return;
         }
         super.destroy();
-        this.close();
+        this.closeAll();
 
         if (!_.isNil(this.observer)) {
             this.observer.complete();
