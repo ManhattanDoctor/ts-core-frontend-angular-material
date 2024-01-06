@@ -20,8 +20,11 @@ export class PortalService extends DestroyableContainer {
     //
     //--------------------------------------------------------------------------
 
-    protected isOpenAsWindow(): boolean {
-        return this.breakpoint.isUp(BootstrapBreakpoint.SM);
+    protected isOpenAsWindow(isOpenAsWindowIfBottomOccupied?: boolean): boolean {
+        if (this.breakpoint.isUp(BootstrapBreakpoint.SM)) {
+            return true;
+        }
+        return isOpenAsWindowIfBottomOccupied ? !_.isNil(this.sheet.window) : false;
     }
 
     //--------------------------------------------------------------------------
@@ -30,24 +33,45 @@ export class PortalService extends DestroyableContainer {
     //
     //--------------------------------------------------------------------------
 
-    public open<U extends IWindowContent<T>, T>(component: ClassType<U>, config: IWindowConfig<T>): U {
-        return this.isOpenAsWindow() ? this.windows.open(component, config) : this.sheet.open(component, config);
+    public open<U extends IWindowContent<T>, T>(component: ClassType<U>, config: IWindowConfig<T>, isOpenAsWindowIfBottomOccupied?: boolean): U {
+        return this.isOpenAsWindow(isOpenAsWindowIfBottomOccupied) ? this.windows.open(component, config) : this.sheet.open(component, config);
     }
 
-    public info(translationId?: string, translation?: any, questionOptions?: IQuestionOptions, configOptions?: WindowConfigOptions): IQuestion {
-        return this.isOpenAsWindow()
+    public info(
+        translationId?: string,
+        translation?: any,
+        questionOptions?: IQuestionOptions,
+        configOptions?: WindowConfigOptions,
+        isOpenAsWindowIfBottomOccupied?: boolean
+    ): IQuestion {
+        return this.isOpenAsWindow(isOpenAsWindowIfBottomOccupied)
             ? this.windows.info(translationId, translation, questionOptions, configOptions)
             : this.sheet.info(translationId, translation, questionOptions, configOptions);
     }
 
-    public question(translationId?: string, translation?: any, questionOptions?: IQuestionOptions, configOptions?: WindowConfigOptions): IQuestion {
-        return this.isOpenAsWindow()
+    public question(
+        translationId?: string,
+        translation?: any,
+        questionOptions?: IQuestionOptions,
+        configOptions?: WindowConfigOptions,
+        isOpenAsWindowIfBottomOccupied?: boolean
+    ): IQuestion {
+        return this.isOpenAsWindow(isOpenAsWindowIfBottomOccupied)
             ? this.windows.question(translationId, translation, questionOptions, configOptions)
             : this.sheet.question(translationId, translation, questionOptions, configOptions);
     }
 
-    public setOnTop<T>(value: WindowId<T>): boolean {
-        return this.isOpenAsWindow() ? this.windows.setOnTop(value) : false;
+    public setOnTop<T>(value: WindowId<T>, isOpenAsWindowIfBottomOccupied?: boolean): boolean {
+        return this.isOpenAsWindow(isOpenAsWindowIfBottomOccupied) ? this.windows.setOnTop(value) : false;
+    }
+
+    public get<T>(value: WindowId<T>): IWindowContent<T> {
+        let item = this.windows.get(value);
+        return !_.isNil(item) ? item : this.sheet.get(value);
+    }
+
+    public has<T>(value: WindowId<T>): boolean {
+        return !_.isNil(this.get(value));
     }
 
     public close<T>(value: WindowId<T>): void {

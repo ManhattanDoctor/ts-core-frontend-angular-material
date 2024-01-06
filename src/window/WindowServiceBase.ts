@@ -26,7 +26,7 @@ export abstract class WindowServiceBase extends WindowService {
     //
     // 	Properties
     //
-    // --------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
 
     public gapX: number;
     public gapY: number;
