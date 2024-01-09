@@ -1,19 +1,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { DestroyableContainer } from '@ts-core/common';
+import { DestroyableContainer, FilterableDataSourceMapCollection } from '@ts-core/common';
 import * as _ from 'lodash';
 import { ICdkTableRow } from './row/ICdkTableRow';
 import { ICdkTableColumn } from './column/ICdkTableColumn';
-import { CdkTablePaginableMapCollection } from './CdkTablePaginableMapCollection';
-import { CdkTableFilterableMapCollection } from './CdkTableFilterableMapCollection';
-import { SortDirection } from '@angular/material/sort';
-import { FilterableDataSourceMapCollection } from '@ts-core/common';
-import { CdkTablePaginableBookmarkMapCollection } from './CdkTablePaginableBookmarkMapCollection';
+import { Sort, SortDirection } from '@angular/material/sort';
+import { CdkTableDataSource } from './CdkTableDataSource';
 
 @Component({ template: '' })
 export abstract class CdkTableBaseComponent<
-    T extends CdkTablePaginableMapCollection<U, V> | CdkTableFilterableMapCollection<U, V> | CdkTablePaginableBookmarkMapCollection<U, V>,
+    M extends FilterableDataSourceMapCollection<U>,
     U,
-    V
+    S extends CdkTableDataSource<M, U> = CdkTableDataSource<M, U>
 > extends DestroyableContainer {
     // --------------------------------------------------------------------------
     //
@@ -21,11 +18,13 @@ export abstract class CdkTableBaseComponent<
     //
     // --------------------------------------------------------------------------
 
-    protected _table: T;
+    protected _table: M;
     protected _settings: ICdkTableSettings<U>;
     protected _rows: ICdkTableRow<U>;
     protected _columns: Array<ICdkTableColumn<U>>;
     protected _columnNames: Array<keyof U>;
+
+    protected _source: S;
 
     protected _selectedRow: U;
     protected _selectedRows: Array<U>;
@@ -47,7 +46,8 @@ export abstract class CdkTableBaseComponent<
     constructor() {
         super();
 
-        this._columnNames = [];
+        this._source = this.createSource();
+        this._columnNames = new Array();
 
         this.settings = {};
         this.rowClicked = new EventEmitter();
@@ -60,8 +60,12 @@ export abstract class CdkTableBaseComponent<
     //
     // --------------------------------------------------------------------------
 
+    protected createSource(): S {
+        return new CdkTableDataSource() as S;
+    }
+
     protected commitTableProperties(): void {
-        let sort = CdkTableFilterableMapCollection.getSort(this.table);
+        let sort = CdkTableDataSource.getSort(this.table);
         if (!_.isNil(sort)) {
             this.sortActive = sort.active.toString();
             this.sortDirection = sort.direction;
@@ -120,6 +124,10 @@ export abstract class CdkTableBaseComponent<
         this.table = null;
         this.selectedRows = null;
 
+        if (!_.isNil(this.source)) {
+            this.source.destroy();
+            this._source = null;
+        }
         if (!_.isNil(this.cellClicked)) {
             this.cellClicked.complete();
             this.cellClicked = null;
@@ -144,23 +152,35 @@ export abstract class CdkTableBaseComponent<
         this.cellClicked.emit({ data: item, column: column.name, event });
     }
 
+    public sortEventHandler(event: Sort): void {
+        this.source.applySortIfNeed(event);
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Public Properties
     //
     // --------------------------------------------------------------------------
 
-    public get table(): T {
+    public get source(): S {
+        return this._source;
+    }
+
+    public get table(): M {
         return this._table;
     }
     @Input()
-    public set table(value: T) {
+    public set table(value: M) {
         if (value === this._table) {
             return;
+        }
+        if (!_.isNil(this.source)) {
+            this.source.map = null;
         }
         this._table = value;
         if (!_.isNil(value)) {
             this.commitTableProperties();
+            this.source.map = value;
         }
     }
 

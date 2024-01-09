@@ -1,17 +1,48 @@
-import { DataSourceMapCollection, DataSourceMapCollectionEvent } from '@ts-core/common';
+import { FilterableDataSourceMapCollection, DestroyableContainer, ObjectUtil, ObservableData, LoadableEvent } from '@ts-core/common';
+import { Sort, SortDirection } from '@angular/material/sort';
+import { Subscription, Observable, Subject, BehaviorSubject } from 'rxjs';
 import * as _ from 'lodash';
-import { Subscription, BehaviorSubject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs';
-import { DestroyableContainer, LoadableEvent } from '@ts-core/common';
 
-export class CdkTableDataSource<U> extends DestroyableContainer {
+export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, U> extends DestroyableContainer {
+    // --------------------------------------------------------------------------
+    //
+    // 	Static Methods
+    //
+    // --------------------------------------------------------------------------
+
+    public static getSort<U>(collection: FilterableDataSourceMapCollection<U>): Sort {
+        if (_.isNil(collection) || _.isEmpty(collection.sort)) {
+            return null;
+        }
+        let active = ObjectUtil.keys(collection.sort)[0].toString();
+        let direction: SortDirection = collection.sort[active] ? 'asc' : 'desc';
+        return { active, direction };
+    }
+
+    public static sortFunction<U>(first: U, second: U, event: Sort): number {
+        if (_.isEmpty(event.direction)) {
+            return 0;
+        }
+        let firstValue = first[event.active];
+        let secondValue = second[event.active];
+        let isHigher = firstValue > secondValue;
+        if (event.direction === 'asc') {
+            return isHigher ? -1 : 1;
+        } else {
+            return isHigher ? 1 : -1;
+        }
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Properties
     //
     // --------------------------------------------------------------------------
 
-    protected subject: BehaviorSubject<Array<U>>;
+    protected _map: M;
+    protected _isLoading: boolean;
+
+    protected subject: Subject<Array<U>>;
     protected subscription: Subscription;
 
     // --------------------------------------------------------------------------
@@ -20,20 +51,9 @@ export class CdkTableDataSource<U> extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    constructor(protected map: DataSourceMapCollection<U>) {
+    constructor() {
         super();
-
-        this.subject = new BehaviorSubject(map.collection);
-        map.events.pipe(takeUntil(this.destroyed)).subscribe(data => {
-            switch (data.type) {
-                case LoadableEvent.COMPLETE:
-                    this.parseResponse();
-                    break;
-                case DataSourceMapCollectionEvent.DATA_LOADED_AND_PARSED:
-                    this.parseParsedResponse();
-                    break;
-            }
-        });
+        this.subject = new BehaviorSubject(new Array());
     }
 
     // --------------------------------------------------------------------------
@@ -42,11 +62,54 @@ export class CdkTableDataSource<U> extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    protected parseResponse(): void {
+    protected commitMapProperties(): void {
+        this.updateData();
+        this.updateLoading();
+    }
+
+    protected applySort(): void {
+        this.map.reload();
+    }
+
+    protected updateData(): void {
         this.subject.next(this.map.collection);
     }
 
-    protected parseParsedResponse(): void {}
+    protected updateLoading(): void {
+        this._isLoading = this.map.isLoading;
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Event Handler
+    //
+    // --------------------------------------------------------------------------
+
+    protected mapEventHandler = (data: ObservableData<string, any>): void => {
+        switch (data.type) {
+            case LoadableEvent.STARTED:
+                this.mapStartedHandler();
+                break;
+            case LoadableEvent.FINISHED:
+                this.mapFinishedHandler();
+                break;
+            case LoadableEvent.COMPLETE:
+                this.mapCompletedHandler();
+                break;
+        }
+    };
+
+    protected mapStartedHandler(): void {
+        this.updateLoading();
+    }
+
+    protected mapFinishedHandler(): void {
+        this.updateLoading();
+    }
+
+    protected mapCompletedHandler(): void {
+        this.updateData();
+    }
 
     // --------------------------------------------------------------------------
     //
@@ -54,15 +117,38 @@ export class CdkTableDataSource<U> extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
+    public applySortIfNeed(event: Sort): void {
+        if (_.isNil(this.map)) {
+            return;
+        }
+        let value = undefined;
+        if (event.direction === 'asc') {
+            value = true;
+        }
+        if (event.direction === 'desc') {
+            value = false;
+        }
+        let name = event.active;
+        let sort = this.map.getSortByName(name);
+        if (value === sort[name]) {
+            return;
+        }
+        ObjectUtil.clear(sort);
+        sort[name] = value;
+        this.applySort();
+    }
+
+    public trackBy(index: number, item: U): any {
+        return !_.isNil(this.map) ? this.map.trackBy(index, item) : index;
+    }
+
     public destroy(): void {
         if (this.isDestroyed) {
             return;
         }
         super.destroy();
-
         this.subject.complete();
         this.subject = null;
-
         this.map = null;
     }
 
@@ -72,7 +158,30 @@ export class CdkTableDataSource<U> extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    public get dataSource(): Observable<Array<U>> {
+    public get map(): M {
+        return this._map;
+    }
+
+    public set map(value: M) {
+        if (value === this._map) {
+            return;
+        }
+        if (!_.isNil(this.subscription)) {
+            this.subscription.unsubscribe();
+            this.subscription = null;
+        }
+        this._map = value;
+        if (!_.isNil(value)) {
+            this.commitMapProperties();
+            this.subscription = value.events.subscribe(this.mapEventHandler);
+        }
+    }
+
+    public get data(): Observable<Array<U>> {
         return this.subject.asObservable();
+    }
+
+    public get isLoading(): boolean {
+        return this._isLoading;
     }
 }

@@ -1,14 +1,20 @@
 import * as _ from 'lodash';
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
-import { CdkTablePaginableMapCollection } from '../CdkTablePaginableMapCollection';
 import { Component, Input, ViewContainerRef } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
+import { PageEvent } from '@angular/material/paginator';
+import { PaginableDataSourceMapCollection } from '@ts-core/common';
+import { CdkPaginableTableDataSource } from '../CdkPaginableTableDataSource';
 
 @Component({
     selector: 'vi-cdk-table-paginable',
     templateUrl: 'cdk-table-paginable.component.html'
 })
-export class CdkTablePaginableComponent<U = any, V = any> extends CdkTableBaseComponent<CdkTablePaginableMapCollection<U, V>, U, V> {
+export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
+    PaginableDataSourceMapCollection<U>,
+    U,
+    CdkPaginableTableDataSource<PaginableDataSourceMapCollection<U>, U>
+> {
     // --------------------------------------------------------------------------
     //
     // 	Properties
@@ -35,7 +41,23 @@ export class CdkTablePaginableComponent<U = any, V = any> extends CdkTableBaseCo
     //
     // --------------------------------------------------------------------------
 
+    protected createSource(): CdkPaginableTableDataSource<PaginableDataSourceMapCollection<U>, U> {
+        return new CdkPaginableTableDataSource();
+    }
+
     protected commitPaginatorProperties(): void {}
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Event Handlers
+    //
+    // --------------------------------------------------------------------------
+
+    public pageEventHandler(event: PageEvent): void {
+        this.table.pageIndex = event.pageIndex;
+        this.table.pageSize = event.pageSize;
+        this.table.load();
+    }
 
     // --------------------------------------------------------------------------
     //

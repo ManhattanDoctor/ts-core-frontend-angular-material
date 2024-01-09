@@ -13,6 +13,11 @@
     .background-body {
         background-color: map.get($background, 'body') !important;
     }
+    .background-color-hover {
+        &:hover {
+            background-color: map.get($background, 'hover');
+        }
+    }
 }
 
 @mixin typography($typography) {

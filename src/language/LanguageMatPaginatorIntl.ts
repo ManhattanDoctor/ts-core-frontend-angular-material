@@ -13,12 +13,6 @@ export class LanguageMatPaginatorIntl extends MatPaginatorIntl implements OnDest
     //
     // --------------------------------------------------------------------------
 
-    public lastPageLabel: string;
-    public nextPageLabel: string;
-    public firstPageLabel: string;
-    public previousPageLabel: string;
-    public itemsPerPageLabel: string;
-
     protected subscription: Subscription;
 
     // --------------------------------------------------------------------------

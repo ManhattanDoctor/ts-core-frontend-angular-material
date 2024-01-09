@@ -2,13 +2,13 @@ import * as _ from 'lodash';
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
 import { Component, ViewContainerRef } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
-import { CdkTablePaginableBookmarkMapCollection } from '../CdkTablePaginableBookmarkMapCollection';
+import { FilterableDataSourceMapCollection } from '@ts-core/common';
 
 @Component({
     selector: 'vi-cdk-table-paginable-bookmark',
     templateUrl: 'cdk-table-paginable-bookmark.component.html'
 })
-export class CdkTablePaginableBookmarkComponent<U = any, V = any> extends CdkTableBaseComponent<CdkTablePaginableBookmarkMapCollection<U, V>, U, V> {
+export class CdkTablePaginableBookmarkComponent<U> extends CdkTableBaseComponent<FilterableDataSourceMapCollection<U>, U> {
     // --------------------------------------------------------------------------
     //
     // 	Constructor

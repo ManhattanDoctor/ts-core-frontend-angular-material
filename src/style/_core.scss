@@ -130,6 +130,7 @@
         &.border-line {
             height: 1px;
             .mdc-linear-progress__buffer {
+                height: inherit;
                 .mdc-linear-progress__buffer-dots {
                     display: none;
                 }
@@ -212,6 +213,9 @@
             max-width: none !important;
             max-height: none !important;
             min-height: 0px !important;
+            border-radius: var.$border-radius;
+            border-style: solid;
+            border-width: 1px;
         }
         .mat-mdc-autocomplete-panel {
             padding: 0 !important;

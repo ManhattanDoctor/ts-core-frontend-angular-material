@@ -16,8 +16,10 @@
     $foreground: map.get($theme, 'foreground');
     $background: map.get($theme, 'background');
 
+    $base-color: map.get($foreground, 'base');
     $text-color: map.get($foreground, 'text');
     $border-color: map.get($foreground, 'divider');
+    $primary-color: mat.get-color-from-palette($primary);
 
     body {
         color: $text-color;
@@ -33,10 +35,24 @@
             border-color: $border-color;
         }
     }
+
     mat-form-field {
         .mdc-text-field {
+            &.mdc-text-field--disabled {
+                .mdc-notched-outline__notch,
+                .mdc-notched-outline__leading,
+                .mdc-notched-outline__trailing {
+                    border-color: $border-color !important;
+                }
+            }
             .mdc-line-ripple::before {
                 border-bottom-color: $border-color !important;
+            }
+        }
+        &.mat-focused,
+        &:hover:not(.mat-form-field-disabled) {
+            .mat-mdc-form-field-focus-overlay {
+                background-color: map.get($background, 'hover') !important;
             }
         }
         .mdc-text-field--outlined {
@@ -50,14 +66,14 @@
                     .mdc-notched-outline__notch,
                     .mdc-notched-outline__leading,
                     .mdc-notched-outline__trailing {
-                        border-color: mat.get-color-from-palette($primary) !important;
+                        border-color: $primary-color !important;
                     }
                 }
                 &.mdc-text-field--focused {
                     .mdc-notched-outline__notch,
                     .mdc-notched-outline__leading,
                     .mdc-notched-outline__trailing {
-                        border-color: mat.get-color-from-palette($primary) !important;
+                        border-color: $primary-color !important;
                     }
                 }
             }
@@ -65,6 +81,7 @@
     }
     mat-expansion-panel {
         border-bottom-color: $border-color;
+        background: none !important;
     }
     mat-progress-bar {
         &.border-line {
@@ -87,6 +104,14 @@
     mat-table {
         background: none !important;
         mat-row {
+            &.active {
+                &:hover {
+                    background-color: map.get($background, 'hover') !important;
+                }
+            }
+            &.selected {
+                background-color: map.get($background, 'hover') !important;
+            }
             mat-cell {
                 border-bottom-color: $border-color !important;
                 &:last-child {
@@ -106,30 +131,70 @@
             }
         }
     }
+    mat-list-item {
+        .mat-mdc-list-item-icon {
+            color: inherit !important;
+        }
+    }
     mat-paginator {
-        background: none !important;
+        background-color: transparent !important;
+    }
+    mat-checkbox {
+        .mdc-form-field {
+            color: $text-color !important;
+        }
+    }
+    mat-radio-button {
+        .mdc-form-field {
+            color: $text-color !important;
+        }
+    }
+
+    .mdc-text-field--disabled {
+        .mdc-floating-label,
+        .mdc-text-field__input {
+            color: $text-color;
+        }
+    }
+    .mat-mdc-menu-item {
+        color: $text-color !important;
+        &:hover {
+            color: $base-color !important;
+        }
+        .mdc-list-item__primary-text {
+            color: inherit !important;
+        }
+    }
+    .mdc-list-item--with-leading-icon .mdc-list-item__start {
+        color: inherit;
+    }
+    .mat-mdc-tooltip-trigger {
+        touch-action: auto !important;
     }
     .mat-mdc-paginator {
         color: $text-color !important;
     }
     .cdk-overlay-pane {
         &.vi-blink {
-            border-color: mat.get-color-from-palette($primary);
+            border-color: $primary-color;
         }
         .mat-mdc-select-panel {
             border-color: $border-color;
         }
+        .mat-mdc-menu-panel {
+            border-color: $border-color;
+        }
     }
     .cdk-overlay-dark-backdrop {
-        background: rgba(0, 0, 0, 0.64);
+        background: rgba(black, 0.64);
     }
 
-    $thumb-color: rgba(0, 0, 0, 0.15);
+    $thumb-color: rgba(black, 0.15);
     @if map.get($theme, 'is-dark') {
         $thumb-color: rgba(255, 255, 255, 0.1);
         .mat-drawer-backdrop {
             &.mat-drawer-shown {
-                background-color: rgba(0, 0, 0, 0.8);
+                background-color: rgba(black, 0.8) !important;
             }
         }
     }
@@ -141,9 +206,77 @@
 @mixin typography($typography) {
     @include bootstrap.typography($typography);
 
+    // Basic
     body {
         @include typography.level($typography, 'body-1', false);
     }
+    // Material
+    mat-table {
+        mat-header-cell {
+            @include typography.level($typography, 'body-2');
+        }
+        mat-cell {
+            @include typography.level($typography, 'body-1');
+        }
+    }
+    mat-row {
+        &.selected {
+            mat-cell {
+                @include typography.level($typography, 'body-2');
+            }
+        }
+    }
+    mat-hint {
+        @include typography.level($typography, 'caption', false);
+    }
+    mat-tooltip-component {
+        @include typography.level($typography, 'caption');
+    }
+    mat-bottom-sheet-container {
+        @include typography.level($typography, 'body-1');
+    }
+    mat-select {
+        &.mat-mdc-select {
+            @include typography.level($typography, 'body-2');
+        }
+    }
+    mat-option {
+        @include typography.level($typography, 'body-2');
+    }
+    mat-form-field {
+        &.mat-mdc-form-field {
+            @include typography.level($typography, 'body-2');
+        }
+        .mdc-floating-label {
+            &:not(.mdc-floating-label--float-above) {
+                @include typography.level($typography, 'body-2');
+            }
+        }
+    }
+    mat-checkbox {
+        .mdc-form-field {
+            @include typography.level($typography, 'body-2');
+        }
+    }
+    mat-radio-button {
+        .mdc-form-field {
+            @include typography.level($typography, 'body-2');
+        }
+    }
+    mat-paginator {
+        .mat-mdc-paginator-range-label {
+            @include typography.level($typography, 'body-2');
+        }
+        .mat-mdc-paginator-page-size-label {
+            @include typography.level($typography, 'body-2');
+        }
+    }
+    vi-menu-list {
+        .mat-mdc-menu-item-text {
+            @include typography.level($typography, 'body-2');
+        }
+    }
+
     .mat-headline-1 {
         @include typography.level($typography, 'headline-1', false);
     }

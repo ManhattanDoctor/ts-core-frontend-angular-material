@@ -1,11 +1,11 @@
 <mat-table
-    class="flex-grow-1 scroll-vertical"
     matSort
-    [dataSource]="table?.table?.dataSource"
-    [trackBy]="table.trackByFn"
+    class="flex-grow-1 scroll-vertical"
+    [trackBy]="source.trackBy"
+    [dataSource]="source.data"
     [matSortActive]="sortActive"
     [matSortDirection]="sortDirection"
-    (matSortChange)="table.sortEventHandler($event)"
+    (matSortChange)="sortEventHandler($event)"
 >
     <ng-container *ngFor="let column of columns; trackBy: columnTrackBy">
         <ng-container [matColumnDef]="column.name">
@@ -59,16 +59,16 @@
     <p class="p-3 flex-shrink-0 text-center mouse-inactive" [vi-translate]="settings?.noDataId" *matNoDataRow></p>
 </mat-table>
 
-<mat-progress-bar class="flex-shrink-0 border-line" [mode]="table?.isLoading ? 'indeterminate' : 'determinate'"></mat-progress-bar>
+<mat-progress-bar class="flex-shrink-0 border-line" [mode]="source.isLoading ? 'indeterminate' : 'determinate'"></mat-progress-bar>
 
 <div class="paginator-container d-flex align-items-center justify-content-end flex-shrink-0">
     <ng-content></ng-content>
     <mat-paginator
         class="flex-shrink-0"
-        [pageSize]="table?.pageSize"
-        [pageIndex]="table?.pageIndex"
-        [length]="table?.total"
-        (page)="table?.pageEventHandler($event)"
+        [pageSize]="source.pageSize"
+        [pageIndex]="source.pageIndex"
+        [length]="source.total"
+        (page)="pageEventHandler($event)"
         [pageSizeOptions]="paginator?.pageSizes"
         [showFirstLastButtons]="paginator?.showFirstLastButtons"
         [hidePageSize]="paginator?.hidePageSize"

@@ -8,8 +8,21 @@
     $is-dark: map.get($theme, 'is-dark');
     $foreground: map.get($theme, 'foreground');
 
+    .text-default {
+        color: map.get($foreground, 'text') !important;
+    }
+    .text-default-hover {
+        &:hover {
+            color: map.get($foreground, 'text') !important;
+        }
+    }
     .text-base {
         color: map.get($foreground, 'base') !important;
+    }
+    .text-base-hover {
+        &:hover {
+            color: map.get($foreground, 'base') !important;
+        }
     }
     .text-base-invert {
         color: map.get($foreground, 'base-invert') !important;
