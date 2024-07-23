@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input } from '@angular/core';
+import { Component, ElementRef, Input, booleanAttribute } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
 import { LanguageService } from '@ts-core/frontend';
 import { ViewUtil } from '@ts-core/angular';
@@ -51,7 +51,7 @@ export class LanguageSelectorComponent extends DestroyableContainer {
     public get isNeedIcon(): boolean {
         return this._isNeedIcon;
     }
-    @Input()
+    @Input({ transform: booleanAttribute })
     public set isNeedIcon(value: boolean) {
         if (value === this._isNeedIcon) {
             return;
@@ -63,7 +63,7 @@ export class LanguageSelectorComponent extends DestroyableContainer {
     public get isNeedLabel(): boolean {
         return this._isNeedLabel;
     }
-    @Input()
+    @Input({ transform: booleanAttribute })
     public set isNeedLabel(value: boolean) {
         if (value === this._isNeedLabel) {
             return;

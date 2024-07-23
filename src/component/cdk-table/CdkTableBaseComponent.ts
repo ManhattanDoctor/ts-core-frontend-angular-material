@@ -1,10 +1,12 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DestroyableContainer, FilterableDataSourceMapCollection } from '@ts-core/common';
 import * as _ from 'lodash';
 import { ICdkTableRow } from './row/ICdkTableRow';
 import { ICdkTableColumn } from './column/ICdkTableColumn';
 import { Sort, SortDirection } from '@angular/material/sort';
 import { CdkTableDataSource } from './CdkTableDataSource';
+import { merge, takeUntil } from 'rxjs';
+import { MatTable } from '@angular/material/table';
 
 @Component({ template: '' })
 export abstract class CdkTableBaseComponent<
@@ -20,14 +22,17 @@ export abstract class CdkTableBaseComponent<
 
     protected _table: M;
     protected _settings: ICdkTableSettings<U>;
+
     protected _rows: ICdkTableRow<U>;
     protected _columns: Array<ICdkTableColumn<U>>;
     protected _columnNames: Array<keyof U>;
 
     protected _source: S;
-
     protected _selectedRow: U;
     protected _selectedRows: Array<U>;
+
+    @ViewChild(MatTable)
+    protected _component: MatTable<U>;
 
     @Output()
     public rowClicked: EventEmitter<ICdkTableRowEvent<U>>;
@@ -52,6 +57,10 @@ export abstract class CdkTableBaseComponent<
         this.settings = {};
         this.rowClicked = new EventEmitter();
         this.cellClicked = new EventEmitter();
+
+        merge(this.source.itemChanged, this.source.itemReplaced)
+            .pipe(takeUntil(this.destroyed))
+            .subscribe(() => this.render());
     }
 
     // --------------------------------------------------------------------------
@@ -88,6 +97,12 @@ export abstract class CdkTableBaseComponent<
         this._selectedRow = !_.isEmpty(this.selectedRows) && this.selectedRows.length === 1 ? this.selectedRows[0] : null;
     }
 
+    protected commitComponentProperties(): void {
+        if (_.isNil(this.component.dataSource)) {
+            this.component.dataSource = this.source.itemsChanged;
+        }
+    }
+
     protected commitSettingsProperties(): void {
         if (_.isNil(this.settings.noDataId)) {
             this.settings.noDataId = 'general.noDataFound';
@@ -111,6 +126,16 @@ export abstract class CdkTableBaseComponent<
     //
     //--------------------------------------------------------------------------
 
+    public render(): void {
+        if (_.isNil(this.component)) {
+            return;
+        }
+        // Doesn't work
+        // this.component.renderRows();
+        this.component.dataSource = null;
+        this.component.dataSource = this.source.itemsChanged;
+    }
+
     public columnTrackBy(index: number, item: ICdkTableColumn<U>): string {
         return item.name;
     }
@@ -122,6 +147,7 @@ export abstract class CdkTableBaseComponent<
         super.destroy();
 
         this.table = null;
+        this.component = null;
         this.selectedRows = null;
 
         if (!_.isNil(this.source)) {
@@ -249,6 +275,20 @@ export abstract class CdkTableBaseComponent<
         }
     }
 
+    public get component(): MatTable<U> {
+        return this._component;
+    }
+    @Input()
+    public set component(value: MatTable<U>) {
+        if (value === this._component) {
+            return;
+        }
+        this._component = value;
+        if (!_.isNil(value)) {
+            this.commitComponentProperties();
+        }
+    }
+
     public get columnNames(): Array<keyof U> {
         return this._columnNames;
     }
@@ -265,6 +305,7 @@ export interface ICdkTableCellEvent<U> extends ICdkTableRowEvent<U> {
 
 export interface ICdkTableSettings<U> {
     noDataId?: string;
+    isHideHeader?: boolean;
     isInteractive?: boolean;
 
     rows?: ICdkTableRow<U>;

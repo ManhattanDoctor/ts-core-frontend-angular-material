@@ -1,6 +1,13 @@
-import { FilterableDataSourceMapCollection, DestroyableContainer, ObjectUtil, ObservableData, LoadableEvent } from '@ts-core/common';
+import {
+    FilterableDataSourceMapCollection,
+    DestroyableContainer,
+    ObjectUtil,
+    ObservableData,
+    LoadableEvent,
+    DataSourceMapCollectionEvent
+} from '@ts-core/common';
 import { Sort, SortDirection } from '@angular/material/sort';
-import { Subscription, Observable, Subject, BehaviorSubject } from 'rxjs';
+import { Subscription, Observable, Subject, BehaviorSubject, map, filter } from 'rxjs';
 import * as _ from 'lodash';
 
 export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, U> extends DestroyableContainer {
@@ -40,9 +47,10 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
     // --------------------------------------------------------------------------
 
     protected _map: M;
+    protected _observer: Subject<ObservableData<DataSourceMapCollectionEvent, U>>;
     protected _isLoading: boolean;
+    protected _dataObserver: BehaviorSubject<Array<U>>;
 
-    protected subject: Subject<Array<U>>;
     protected subscription: Subscription;
 
     // --------------------------------------------------------------------------
@@ -53,7 +61,6 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
 
     constructor() {
         super();
-        this.subject = new BehaviorSubject(new Array());
     }
 
     // --------------------------------------------------------------------------
@@ -72,7 +79,7 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
     }
 
     protected updateData(): void {
-        this.subject.next(this.map.collection);
+        this.dataObserver.next(this.map.collection);
     }
 
     protected updateLoading(): void {
@@ -96,6 +103,12 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
             case LoadableEvent.COMPLETE:
                 this.mapCompletedHandler();
                 break;
+            case DataSourceMapCollectionEvent.ITEM_CHANGED:
+                this.mapItemChangedHandler(data.data);
+                break;
+            case DataSourceMapCollectionEvent.ITEM_REPLACED:
+                this.mapItemReplacedHandler(data.data);
+                break;
         }
     };
 
@@ -109,6 +122,14 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
 
     protected mapCompletedHandler(): void {
         this.updateData();
+    }
+
+    protected mapItemChangedHandler(item: U): void {
+        this.observer.next(new ObservableData(DataSourceMapCollectionEvent.ITEM_CHANGED, item));
+    }
+
+    protected mapItemReplacedHandler(item: U): void {
+        this.observer.next(new ObservableData(DataSourceMapCollectionEvent.ITEM_REPLACED, item));
     }
 
     // --------------------------------------------------------------------------
@@ -147,9 +168,35 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
             return;
         }
         super.destroy();
-        this.subject.complete();
-        this.subject = null;
+        if (!_.isNil(this._observer)) {
+            this._observer.complete();
+            this._observer = null;
+        }
+        if (!_.isNil(this._dataObserver)) {
+            this._dataObserver.complete();
+            this._dataObserver = null;
+        }
         this.map = null;
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Protected Properties
+    //
+    // --------------------------------------------------------------------------
+
+    protected get observer(): Subject<ObservableData<DataSourceMapCollectionEvent, U>> {
+        if (_.isNil(this._observer)) {
+            this._observer = new Subject();
+        }
+        return this._observer;
+    }
+
+    protected get dataObserver(): BehaviorSubject<Array<U>> {
+        if (_.isNil(this._dataObserver)) {
+            this._dataObserver = new BehaviorSubject(new Array());
+        }
+        return this._dataObserver;
     }
 
     // --------------------------------------------------------------------------
@@ -177,8 +224,22 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
         }
     }
 
-    public get data(): Observable<Array<U>> {
-        return this.subject.asObservable();
+    public get itemChanged(): Observable<U> {
+        return this.observer.pipe(
+            filter(item => item.type === DataSourceMapCollectionEvent.ITEM_CHANGED),
+            map(item => item.data)
+        );
+    }
+
+    public get itemReplaced(): Observable<U> {
+        return this.observer.pipe(
+            filter(item => item.type === DataSourceMapCollectionEvent.ITEM_REPLACED),
+            map(item => item.data)
+        );
+    }
+
+    public get itemsChanged(): Observable<Array<U>> {
+        return this.dataObserver.asObservable();
     }
 
     public get isLoading(): boolean {

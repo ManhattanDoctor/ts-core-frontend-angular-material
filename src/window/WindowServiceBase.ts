@@ -331,6 +331,8 @@ export abstract class WindowServiceBase extends WindowService {
         }
         super.destroy();
         this.closeAll();
+        this.windows.clear();
+
         if (!_.isNil(this.observer)) {
             this.observer.complete();
             this.observer = null;
@@ -339,8 +341,8 @@ export abstract class WindowServiceBase extends WindowService {
             this.properties.destroy();
             this.properties = null;
         }
+
         this.language = null;
-        this._windows = null;
     }
 
     protected abstract openWindow<U extends IWindowContent<T>, T>(component: ClassType<U>, config: IWindowConfig<T>): IWindowInfo<T>;

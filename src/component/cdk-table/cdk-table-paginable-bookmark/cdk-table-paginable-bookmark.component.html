@@ -2,7 +2,8 @@
     matSort
     class="flex-grow-1 scroll-vertical"
     [trackBy]="source.trackBy"
-    [dataSource]="source.data"
+    [dataSource]="source.itemsChanged"
+    [class.header-hidden]="settings?.isHideHeader"
     [matSortActive]="sortActive"
     [matSortDirection]="sortDirection"
     (matSortChange)="sortEventHandler($event)"

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, booleanAttribute } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { DestroyableContainer } from '@ts-core/common';
 import * as _ from 'lodash';
@@ -18,7 +18,7 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
     @Input()
     public className: string;
 
-    @Input()
+    @Input({ transform: booleanAttribute })
     public isStretch: boolean = true;
 
     protected _list: SelectListItems<ISelectListItem<T>>;
