@@ -25,6 +25,7 @@ export * from './component/cdk-table/cdk-table-filterable/cdk-table-filterable.c
 export * from './component/cdk-table/cdk-table-paginable-bookmark/cdk-table-paginable-bookmark.component';
 //
 export * from './directive/MenuTriggerForDirective';
+export * from './directive/VoiceRecognitionButtonDirective';
 //
 export * from './language/LanguageMatPaginatorIntl';
 export * from './language/LanguageMomentDateAdapter';
@@ -41,6 +42,8 @@ export * from './bottomSheet/BottomSheetServiceImpl';
 export * from './bottomSheet/component/BottomSheetBaseComponent';
 //
 export * from './service/PortalService';
+export * from './service/ScrollService';
+export * from './service/VoiceRecognitionService';
 export * from './service/BootstrapBreakpointService';
 //
 export * from './window/WindowImpl';

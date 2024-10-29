@@ -1,7 +1,7 @@
 import { MatMenuPanel, MatMenuTrigger } from '@angular/material/menu';
 import { FlexibleConnectedPositionStrategy, OverlayRef, PositionStrategy } from '@angular/cdk/overlay';
-import * as _ from 'lodash';
 import { Directive, Input } from '@angular/core';
+import * as _ from 'lodash';
 
 @Directive({
     selector: '[vi-menu-trigger-for]'

@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "17.0.26",
+    "version": "17.0.31",
     "description": "Modules for frontend based on angular material",
     "main": "public-api.js",
     "author": {
@@ -9,7 +9,7 @@
     },
     "license": "ISC",
     "peerDependencies": {
-        "@ts-core/angular": "~17.0.22",
+        "@ts-core/angular": "~17.0.23",
         "@angular/cdk": "^17.0.4",
         "@angular/material": "^17.0.4",
         "@angular/material-moment-adapter": "^17.0.4",

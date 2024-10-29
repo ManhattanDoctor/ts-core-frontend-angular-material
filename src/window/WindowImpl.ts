@@ -23,16 +23,14 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
     //
     // --------------------------------------------------------------------------
 
-    private _isBlink: boolean = false;
-
-    private _isShaking: boolean = false;
     private shakeTimer: any;
-
     private resizeTimer: any;
 
+    private _isBlink: boolean = false;
     private _isOnTop: boolean = false;
     private _isDisabled: boolean = false;
     private _isMinimized: boolean = false;
+    private _isShaking: boolean = false;
 
     private isOpened: boolean = false;
     private isWasOnTop: boolean = false;
@@ -44,8 +42,8 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
     protected elements: Array<ComponentRef<WindowElement>>;
     protected properties: WindowProperties;
 
-    protected subscription: Subscription;
     protected observer: Subject<string>;
+    protected subscription: Subscription;
 
     // --------------------------------------------------------------------------
     //
@@ -55,11 +53,13 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
 
     constructor(properties: WindowProperties) {
         super();
-        this.observer = new Subject();
         this.elements = new Array();
-
+        this.observer = new Subject();
         this.properties = properties;
-        this.content.window = this;
+
+        if (!_.isNil(this.content)) {
+            this.content.window = this;
+        }
 
         // Have to save for unsubscribe on destroy
         this._wrapper = this.properties.overlay.hostElement;

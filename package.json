@@ -10,8 +10,7 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@ts-core/angular": "~17.0.22",
-        
+        "@ts-core/angular": "~17.0.23",
         "@angular/animations": "^17.0.8",
         "@angular/common": "^17.0.8",
         "@angular/compiler": "^17.0.8",

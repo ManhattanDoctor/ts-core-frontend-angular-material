@@ -4,6 +4,7 @@ import { BottomSheetModule } from './bottomSheet/BottomSheetModule';
 import { NotificationModule } from './notification/NotificationModule';
 import { WindowModule } from './window/WindowModule';
 import { MenuTriggerForDirective } from './directive/MenuTriggerForDirective';
+import { VoiceRecognitionButtonDirective } from './directive/VoiceRecognitionButtonDirective';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -58,7 +59,8 @@ let declarations = [
     CdkTableFilterableComponent,
     CdkTablePaginableBookmarkComponent,
 
-    MenuTriggerForDirective
+    MenuTriggerForDirective,
+    VoiceRecognitionButtonDirective
 ];
 
 @NgModule({
