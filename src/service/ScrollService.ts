@@ -22,7 +22,7 @@ export class ScrollService extends Destroyable {
     //
     //--------------------------------------------------------------------------
 
-    constructor(transport: Transport, private nativeWindow: NativeWindowService, private router: RouterBaseService) {
+    constructor(transport: Transport, private nativeWindow: NativeWindowService) {
         super();
         transport
             .listen<ScrollCommand>(ScrollCommand.NAME)
@@ -39,9 +39,13 @@ export class ScrollService extends Destroyable {
     //
     //--------------------------------------------------------------------------
 
-    protected getElementPosition(id: string): DOMRect {
-        let item = this.nativeWindow.document.getElementById(id);
-        return !_.isNil(item) ? item.getBoundingClientRect() : null;
+    protected getElementPositionTop(id: string): number {
+        let element = this.nativeWindow.document.getElementById(id);
+        if (_.isNil(element)) {
+            return null;
+        }
+        let item = element.getBoundingClientRect();
+        return element.offsetTop + item.top;
     }
 
     //--------------------------------------------------------------------------
@@ -52,9 +56,9 @@ export class ScrollService extends Destroyable {
 
     public execute(item: IScrollDto): void {
         if (!_.isNil(item.elementId)) {
-            let position = this.getElementPosition(item.elementId);
+            let position = this.getElementPositionTop(item.elementId);
             if (!_.isNil(position)) {
-                item.top = position.top;
+                item.top = position;
             }
         }
         if (_.isNil(item.top)) {
@@ -66,12 +70,10 @@ export class ScrollService extends Destroyable {
         this.container.scrollTo(item);
     }
 
-    public toFragment(fragment?: string, behavior?: ScrollBehavior): void {
-        if (_.isNil(fragment)) {
-            fragment = this.router.getFragment();
-        }
-        if (!_.isNil(fragment)) {
-            this.execute({ elementId: fragment, behavior });
+    public toElement(id: string, options?: ScrollIntoViewOptions): void {
+        let element = this.nativeWindow.document.getElementById(id);
+        if (!_.isNil(element)) {
+            element.scrollIntoView(options);
         }
     }
 }
