@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Transport, Destroyable, TransportCommand, TransportEvent } from '@ts-core/common';
 import { CdkScrollable, ExtendedScrollToOptions } from '@angular/cdk/scrolling';
 import { NativeWindowService } from '@ts-core/frontend';
-import { RouterBaseService } from '@ts-core/angular';
 import { map, filter } from 'rxjs';
 import * as _ from 'lodash';
 
