@@ -1,14 +1,13 @@
-@use 'sass:map';
 @use '@angular/material' as mat;
-@use '../variables' as var;
+@use 'helper/color' as color;
 
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins/breakpoints';
 
 @mixin core() {
-    $border-radius: var.$border-radius;
-    // Rounded
+    $border-radius: var(--vi-border-radius, 4px);
+
     .rounded {
         border-radius: $border-radius !important;
     }
@@ -50,22 +49,16 @@
 }
 
 @mixin color($theme) {
-    $warn: map.get($theme, 'warn');
-    $accent: map.get($theme, 'accent');
-    $primary: map.get($theme, 'primary');
-    $is-dark: map.get($theme, 'is-dark');
-    $foreground: map.get($theme, 'foreground');
+    $base-color: black;
+    $warning-color: var(--vi-warning-color, yellow);
+    $success-color: var(--vi-success-color, green);
 
-    $base-color: map.get($foreground, 'base');
-    $base-color-invert: map.get($foreground, 'base-invert');
+    $border-width: var(--vi-border-width, 1px);
+    $border-color: mat.get-theme-color($theme, 'outline');
 
-    $border-color: map.get($foreground, 'divider');
-
-    $warn-color: mat.get-color-from-palette($warn);
-    $accent-color: mat.get-color-from-palette($accent);
-    $primary-color: mat.get-color-from-palette($primary);
-
-    $border-width: 1px;
+    @if mat.get-theme-type($theme) == dark {
+        $base-color: white;
+    }
 
     @each $breakpoint in map-keys($grid-breakpoints) {
         @include media-breakpoint-up($breakpoint) {
@@ -74,29 +67,25 @@
         }
     }
 
-    // Main colors
-    .border-warn {
-        border-color: $warn-color !important;
+    .border-transparent {
+        border-width: $border-width;
+        border-color: transparent !important;
+        border-style: solid !important;
     }
-    .border-warn-hover {
+    .border-warning {
+        border-color: $warning-color !important;
+    }
+    .border-warning-hover {
         &:hover {
-            border-color: $warn-color !important;
-        }
-    }
-    .border-accent {
-        border-color: $accent-color !important;
-    }
-    .border-accent-hover {
-        &:hover {
-            border-color: $accent-color !important;
+            border-color: $warning-color !important;
         }
     }
     .border-primary {
-        border-color: $primary-color !important;
+        border-color: mat.get-theme-color($theme, 'primary') !important;
     }
     .border-primary-hover {
         &:hover {
-            border-color: $primary-color !important;
+            border-color: mat.get-theme-color($theme, 'primary') !important;
         }
     }
     .border-base {
@@ -107,26 +96,9 @@
             border-color: $base-color !important;
         }
     }
-    .border-base-invert {
-        border-color: $base-color-invert !important;
-    }
-    .border-base-invert-hover {
-        &:hover {
-            border-color: $base-color-invert !important;
-        }
-    }
 }
 
 @mixin border-mixin($infix, $width, $color) {
-    // Transparent
-    .border-transparent {
-        border-width: $width;
-        border-color: transparent !important;
-        border-style: solid !important;
-        &.dashed {
-            border-style: dashed !important;
-        }
-    }
     // Top
     .border#{$infix}-top {
         border-top-width: $width;
@@ -228,14 +200,13 @@
     }
 }
 
-@mixin typography($typography) {
+@mixin typography($theme) {
 }
-@mixin theme($theme, $typography) {
-    $color: mat.get-color-config($theme);
-    @if $color != null {
+@mixin theme($theme) {
+    @if mat.theme-has($theme, color) {
         @include color($theme);
     }
-    @if $typography != null {
-        @include typography($typography);
+    @if mat.theme-has($theme, typography) {
+        @include typography($theme);
     }
 }

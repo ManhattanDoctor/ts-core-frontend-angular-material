@@ -1,32 +1,25 @@
-@forward 'helper/typography' as typography-*;
-@forward 'helper/theme' as theme-*;
 @forward 'core' show core;
+@forward 'helper/color' as color-*;
+@forward 'helper/typography' as typography-*;
 
-@use 'sass:map';
-@use '@angular/material' as mat;
-
-@use 'variables' as var;
 @use 'bootstrap' as bootstrap;
+@use '@angular/material' as mat;
 @use 'helper/typography' as typography;
 
 @mixin color($theme) {
     @include bootstrap.color($theme);
 
-    $primary: map.get($theme, 'primary');
-    $foreground: map.get($theme, 'foreground');
-    $background: map.get($theme, 'background');
+    $text-color: var(--mat-app-text-color);
+    $hover-color: var(--mat-option-hover-state-layer-color);
+    $border-color: mat.get-theme-color($theme, 'outline');
+    $primary-color: mat.get-theme-color($theme, 'primary');
 
-    $base-color: map.get($foreground, 'base');
-    $text-color: map.get($foreground, 'text');
-    $border-color: map.get($foreground, 'divider');
-    $primary-color: mat.get-color-from-palette($primary);
-
-    body {
-        color: $text-color;
-        background-color: map.get($background, 'body');
-    }
+    mat-expansion-panel,
     mat-dialog-container,
-    mat-datepicker-content,
+    mat-datepicker-content {
+        border-color: $border-color;
+    }
+
     mat-bottom-sheet-container {
         border-color: $border-color;
         vi-window-close-element,
@@ -36,53 +29,6 @@
         }
     }
 
-    mat-form-field {
-        .mdc-text-field {
-            &.mdc-text-field--disabled {
-                .mdc-notched-outline__notch,
-                .mdc-notched-outline__leading,
-                .mdc-notched-outline__trailing {
-                    border-color: $border-color !important;
-                }
-            }
-            .mdc-line-ripple::before {
-                border-bottom-color: $border-color !important;
-            }
-        }
-        &.mat-focused,
-        &:hover:not(.mat-form-field-disabled) {
-            .mat-mdc-form-field-focus-overlay {
-                background-color: map.get($background, 'hover') !important;
-            }
-        }
-        .mdc-text-field--outlined {
-            &:not(.mdc-text-field--disabled) {
-                .mdc-notched-outline__notch,
-                .mdc-notched-outline__leading,
-                .mdc-notched-outline__trailing {
-                    border-color: $border-color !important;
-                }
-                &:hover {
-                    .mdc-notched-outline__notch,
-                    .mdc-notched-outline__leading,
-                    .mdc-notched-outline__trailing {
-                        border-color: $primary-color !important;
-                    }
-                }
-                &.mdc-text-field--focused {
-                    .mdc-notched-outline__notch,
-                    .mdc-notched-outline__leading,
-                    .mdc-notched-outline__trailing {
-                        border-color: $primary-color !important;
-                    }
-                }
-            }
-        }
-    }
-    mat-expansion-panel {
-        border-bottom-color: $border-color;
-        background: none !important;
-    }
     mat-progress-bar {
         &.border-line {
             &:not(.transparent) {
@@ -102,77 +48,19 @@
         }
     }
     mat-table {
-        background: none !important;
         mat-row {
             &.active {
                 &:hover {
-                    background-color: map.get($background, 'hover') !important;
+                    background-color: $hover-color !important;
                 }
             }
             &.selected {
-                background-color: map.get($background, 'hover') !important;
-            }
-            mat-cell {
-                border-bottom-color: $border-color !important;
-                &:last-child {
-                    border-bottom-color: transparent;
-                }
-            }
-            .mdc-data-table__cell {
-                color: inherit;
+                background-color: $hover-color !important;
             }
         }
-        mat-header-row {
-            mat-header-cell {
-                &:not(:hover),
-                &.mat-sort-header-disabled {
-                    color: $text-color !important;
-                }
-            }
-        }
-    }
-    mat-list-item {
-        .mat-mdc-list-item-icon {
-            color: inherit !important;
-        }
-    }
-    mat-paginator {
-        background-color: transparent !important;
-    }
-    mat-checkbox {
-        .mdc-form-field {
-            color: $text-color !important;
-        }
-    }
-    mat-radio-button {
-        .mdc-form-field {
-            color: $text-color !important;
-        }
-    }
-
-    .mdc-text-field--disabled {
-        .mdc-floating-label,
-        .mdc-text-field__input {
-            color: $text-color !important;
-        }
-    }
-    .mat-mdc-menu-item {
-        color: $text-color !important;
-        &:hover {
-            color: $base-color !important;
-        }
-        .mdc-list-item__primary-text {
-            color: inherit !important;
-        }
-    }
-    .mdc-list-item--with-leading-icon .mdc-list-item__start {
-        color: inherit;
     }
     .mat-mdc-tooltip-trigger {
         touch-action: auto !important;
-    }
-    .mat-mdc-paginator {
-        color: $text-color !important;
     }
     .cdk-overlay-pane {
         &.vi-blink {
@@ -190,7 +78,7 @@
     }
 
     $thumb-color: rgba(black, 0.15);
-    @if map.get($theme, 'is-dark') {
+    @if $is-dark {
         $thumb-color: rgba(255, 255, 255, 0.1);
         .mat-drawer-backdrop {
             &.mat-drawer-shown {
@@ -203,130 +91,101 @@
     }
 }
 
-@mixin typography($typography) {
-    @include bootstrap.typography($typography);
+@mixin typography($theme) {
+    @include bootstrap.typography($theme);
 
-    // Basic
     body {
-        @include typography.level($typography, 'body-1', false);
+        @include typography.level($theme, 'body-medium', false);
     }
+    mat-row {
+        &.selected {
+            mat-cell {
+                @include typography.level($theme, 'body-large');
+            }
+        }
+    }
+
     // Material
     mat-table {
-        mat-header-cell {
-            @include typography.level($typography, 'body-2', false);
-        }
-        mat-cell {
-            @include typography.level($typography, 'body-1', false);
-        }
         &.header-hidden {
             mat-header-row {
                 display: none;
             }
         }
     }
-    mat-row {
-        &.selected {
-            mat-cell {
-                @include typography.level($typography, 'body-2');
-            }
-        }
-    }
+    /*
     mat-hint {
-        @include typography.level($typography, 'caption', false);
+        @include typography.level($theme, 'caption', false);
     }
     mat-tooltip-component {
-        @include typography.level($typography, 'caption');
-    }
-    mat-bottom-sheet-container {
-        @include typography.level($typography, 'body-1');
+        @include typography.level($theme, 'caption');
     }
     mat-checkbox {
         .mdc-form-field {
-            @include typography.level($typography, 'body-1');
-        }
-    }
-    mat-paginator {
-        .mat-mdc-paginator-range-label {
-            @include typography.level($typography, 'body-1');
-        }
-        .mat-mdc-paginator-page-size-label {
-            @include typography.level($typography, 'body-1');
-        }
-    }
-    /*
-    mat-select {
-        &.mat-mdc-select {
-            @include typography.level($typography, 'body-2');
-        }
-    }
-    mat-option {
-        @include typography.level($typography, 'body-2');
-    }
-    mat-form-field {
-        &.mat-mdc-form-field {
-            @include typography.level($typography, 'body-2');
-        }
-        .mdc-floating-label {
-            &:not(.mdc-floating-label--float-above) {
-                @include typography.level($typography, 'body-2');
-            }
-        }
-    }
-    mat-radio-button {
-        .mdc-form-field {
-            @include typography.level($typography, 'body-2');
-        }
-    }
-    */
-    vi-menu-list {
-        .mat-mdc-menu-item-text {
-            @include typography.level($typography, 'button');
+            @include typography.level($theme, 'body-1');
         }
     }
 
-    .mat-headline-1 {
-        @include typography.level($typography, 'headline-1', false);
+    */
+
+    .mat-display-large {
+        @include typography.level($theme, display-large, false);
     }
-    .mat-headline-2 {
-        @include typography.level($typography, 'headline-2', false);
+    .mat-display-medium {
+        @include typography.level($theme, display-medium, false);
     }
-    .mat-headline-3 {
-        @include typography.level($typography, 'headline-3', false);
+    .mat-display-small {
+        @include typography.level($theme, display-small, false);
     }
-    .mat-headline-4 {
-        @include typography.level($typography, 'headline-4', false);
+    .mat-headline-large {
+        @include typography.level($theme, headline-large, false);
     }
-    .mat-headline-5 {
-        @include typography.level($typography, 'headline-5', false);
+    .mat-headline-medium {
+        @include typography.level($theme, headline-medium, false);
     }
-    .mat-headline-6 {
-        @include typography.level($typography, 'headline-6', false);
+    .mat-headline-small {
+        @include typography.level($theme, headline-small, false);
     }
-    .mat-subtitle-2 {
-        @include typography.level($typography, 'subtitle-2', false);
+    .mat-title-large {
+        @include typography.level($theme, title-large, false);
     }
-    .mat-subtitle-1 {
-        @include typography.level($typography, 'subtitle-1', false);
+    .mat-title-medium {
+        @include typography.level($theme, title-medium, false);
     }
-    .mat-body-2 {
-        @include typography.level($typography, 'body-2', false);
+    .mat-title-small {
+        @include typography.level($theme, title-small, false);
     }
-    .mat-body-1 {
-        @include typography.level($typography, 'body-1', false);
+    .mat-body-large {
+        @include typography.level($theme, body-large, false);
     }
-    .mat-caption {
-        @include typography.level($typography, 'caption', false);
+    .mat-body-medium {
+        @include typography.level($theme, body-medium, false);
     }
-    .mat-button {
-        @include typography.level($typography, 'button', false);
+    .mat-body-small {
+        @include typography.level($theme, body-small, false);
+    }
+    .mat-label-large {
+        @include typography.level($theme, label-large, false);
+    }
+    .mat-label-medium {
+        @include typography.level($theme, label-medium, false);
+    }
+    .mat-label-small {
+        @include typography.level($theme, label-small, false);
+    }
+
+    .font-family-plain {
+        font-family: mat.get-theme-typography($theme, body-medium, font-family) !important;
+    }
+    .font-family-brand {
+        font-family: mat.get-theme-typography($theme, display-large, font-family) !important;
     }
 }
-@mixin theme($theme, $typography) {
-    $color: mat.get-color-config($theme);
-    @if $color != null {
+@mixin theme($theme) {
+    @if mat.theme-has($theme, color) {
         @include color($theme);
     }
-    @if $typography != null {
-        @include typography($typography);
+    @if mat.theme-has($theme, typography) {
+        @include typography($theme);
     }
 }

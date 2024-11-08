@@ -1,33 +1,26 @@
-@use 'sass:map';
 @use '@angular/material' as mat;
 
 @mixin color($theme) {
-    $color: mat.get-color-config($theme);
-    $primary: map.get($color, 'primary');
-    $foreground: map.get($color, 'foreground');
-    $background: map.get($color, 'background');
-
     .background {
-        background-color: map.get($background, 'background') !important;
+        background-color: mat.get-theme-color($theme, 'surface') !important;
     }
     .background-body {
-        background-color: map.get($background, 'body') !important;
+        background-color: mat.get-theme-color($theme, 'background') !important;
     }
     .background-color-hover {
         &:hover {
-            background-color: map.get($background, 'hover');
+            background-color: var(--mat-option-hover-state-layer-color)
         }
     }
 }
 
-@mixin typography($typography) {
+@mixin typography($theme) {
 }
-@mixin theme($theme, $typography) {
-    $color: mat.get-color-config($theme);
-    @if $color != null {
+@mixin theme($theme) {
+    @if mat.theme-has($theme, color) {
         @include color($theme);
     }
-    @if $typography != null {
-        @include typography($typography);
+    @if mat.theme-has($theme, typography) {
+        @include typography($theme);
     }
 }

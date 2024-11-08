@@ -1,0 +1,9 @@
+@use '@angular/material' as mat;
+
+@function get-base($theme) {
+    @if mat.get-theme-type($theme) == dark {
+        @return white;
+    } @else {
+        @return black;
+    }
+}
