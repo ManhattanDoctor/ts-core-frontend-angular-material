@@ -2,8 +2,8 @@
 
 @function get-base($theme) {
     @if mat.get-theme-type($theme) == dark {
-        @return white;
+        @return #FFFFFF;
     } @else {
-        @return black;
+        @return #000000;
     }
 }

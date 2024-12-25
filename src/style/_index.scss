@@ -3,6 +3,7 @@
 @forward 'helper/typography' as typography-*;
 
 @use 'bootstrap' as bootstrap;
+@use '@ts-core/angular' as vi;
 @use '@angular/material' as mat;
 @use 'helper/typography' as typography;
 
@@ -15,11 +16,11 @@
     $primary-color: mat.get-theme-color($theme, 'primary');
 
     mat-expansion-panel,
-    mat-dialog-container,
     mat-datepicker-content {
         border-color: $border-color;
     }
 
+    mat-dialog-container,
     mat-bottom-sheet-container {
         border-color: $border-color;
         vi-window-close-element,
@@ -28,7 +29,6 @@
             border-color: $border-color;
         }
     }
-
     mat-progress-bar {
         &.border-line {
             &:not(.transparent) {
@@ -59,6 +59,14 @@
             }
         }
     }
+    mat-list-item {
+        &.mdc-list-item--disabled {
+            @include vi.mouse-inactive();
+        }
+        .mat-mdc-list-item-title {
+            color: inherit;
+        }
+    }
     .mat-mdc-tooltip-trigger {
         touch-action: auto !important;
     }
@@ -78,7 +86,7 @@
     }
 
     $thumb-color: rgba(black, 0.15);
-    @if $is-dark {
+    @if mat.get-theme-type($theme) == dark {
         $thumb-color: rgba(255, 255, 255, 0.1);
         .mat-drawer-backdrop {
             &.mat-drawer-shown {

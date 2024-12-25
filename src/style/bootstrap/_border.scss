@@ -1,5 +1,4 @@
 @use '@angular/material' as mat;
-@use 'helper/color' as color;
 
 @import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/variables';
@@ -99,7 +98,6 @@
 }
 
 @mixin border-mixin($infix, $width, $color) {
-    // Top
     .border#{$infix}-top {
         border-top-width: $width;
         border-top-color: $color !important;
@@ -111,7 +109,6 @@
     .border#{$infix}-top-0 {
         border-top-style: none !important;
     }
-    // Right
     .border#{$infix}-right {
         border-right-width: $width;
         border-right-color: $color !important;
@@ -123,7 +120,6 @@
     .border#{$infix}-right-0 {
         border-right-style: none !important;
     }
-    // Bottom
     .border#{$infix}-bottom {
         border-bottom-width: $width;
         border-bottom-color: $color !important;
@@ -135,7 +131,6 @@
     .border#{$infix}-bottom-0 {
         border-bottom-style: none !important;
     }
-    // Left
     .border#{$infix}-left {
         border-left-width: $width;
         border-left-color: $color !important;
@@ -147,8 +142,6 @@
     .border#{$infix}-left-0 {
         border-left-style: none !important;
     }
-
-    // X
     .border#{$infix}-x {
         border-left-width: $width;
         border-left-color: $color !important;
@@ -166,8 +159,6 @@
         border-left-style: none !important;
         border-right-style: none !important;
     }
-
-    // Default
     .border#{$infix} {
         border-width: $width;
         border-color: $color !important;
@@ -179,8 +170,6 @@
     .border#{$infix}-0 {
         border-style: none !important;
     }
-
-    // Y
     .border#{$infix}-y {
         border-top-width: $width;
         border-top-color: $color !important;

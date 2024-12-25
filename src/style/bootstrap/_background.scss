@@ -1,15 +1,19 @@
 @use '@angular/material' as mat;
 
 @mixin color($theme) {
+    $hover-color: var(--mat-option-hover-state-layer-color);
+
+    .surface,
     .background {
         background-color: mat.get-theme-color($theme, 'surface') !important;
     }
     .background-body {
         background-color: mat.get-theme-color($theme, 'background') !important;
     }
+    .surface-color-hover,
     .background-color-hover {
         &:hover {
-            background-color: var(--mat-option-hover-state-layer-color)
+            background-color: $hover-color;
         }
     }
 }

@@ -1,32 +1,24 @@
 @use '@angular/material' as mat;
+@use '../helper/color' as color;
 
 @mixin color($theme) {
-    $is-dark: mat.get-theme-type($theme) == dark;
-    $base-color: black;
-    $success-color: var(--vi-success-color, green);
-    $warning-color: var(--vi-warning-color, yellow);
-
-    @if $is-dark {
-        $base-color: white;
-    }
-
     .text-base,
     .color-base {
-        color: $base-color !important;
+        color: color.get-base($theme) !important;
     }
     .color-base-hover {
         &:hover {
-            color: $base-color !important;
+            color: color.get-base($theme) !important;
         }
     }
     .color-error {
         color: mat.get-theme-color($theme, 'error') !important;
     }
     .color-warning {
-        color: $warning-color !important;
+        color: var(--vi-warning-color, yellow) !important;
     }
     .color-success {
-        color: $success-color !important;
+        color: var(--vi-success-color, green) !important;
     }
     .color-primary {
         color: mat.get-theme-color($theme, 'primary') !important;

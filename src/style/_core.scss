@@ -24,6 +24,7 @@
         @include vi.mouse-inactive();
     }
     mat-dialog-container {
+        border-radius: var(--mdc-dialog-container-shape);
         &:hover:not(.minimized) {
             vi-window-resize-element {
                 display: block !important;
@@ -49,6 +50,7 @@
     mat-bottom-sheet-container {
         padding: 0 !important;
         overflow: visible !important;
+        border-radius: var(--mat-bottom-sheet-container-shape);
         & > :first-child {
             width: 100%;
             height: 100%;
@@ -228,7 +230,7 @@
     .mat-mdc-tab-label-container {
         border-bottom: none !important;
     }
-    // Text
+
     .mat-label-small,
     .mat-label-medium,
     .mat-label-large,
@@ -249,12 +251,6 @@
 }
 
 @mixin core() {
-    body,
-    html {
-        margin: 0;
-        height: 100%;
-    }
-    
     @include vi.core();
     @include mat.core();
     @include bootstrap.core();
