@@ -7,7 +7,8 @@ import * as _ from 'lodash';
 @Component({
     selector: 'vi-notification',
     templateUrl: 'notification.component.html',
-    styleUrls: ['notification.component.scss']
+    styleUrls: ['notification.component.scss'],
+    standalone: false
 })
 export class NotificationComponent extends NotificationQuestionBaseComponent {
     // --------------------------------------------------------------------------
@@ -16,7 +17,11 @@ export class NotificationComponent extends NotificationQuestionBaseComponent {
     //
     // --------------------------------------------------------------------------
 
-    constructor(container: ViewContainerRef, private language: LanguageService, private notifications: NotificationService) {
+    constructor(
+        container: ViewContainerRef,
+        private language: LanguageService,
+        private notifications: NotificationService
+    ) {
         super(container);
         ViewUtil.addClasses(container.element, 'd-block');
     }

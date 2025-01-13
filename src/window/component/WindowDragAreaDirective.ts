@@ -1,13 +1,14 @@
 import { Directive, ElementRef, Input } from '@angular/core';
 import { Interactable } from '@interactjs/types';
-import * as interact from 'interactjs';
 import { Destroyable } from '@ts-core/common';
 import { WindowDragable } from './WindowDragable';
-import * as _ from 'lodash';
 import { IWindow } from '@ts-core/angular';
+import * as interact from 'interactjs';
+import * as _ from 'lodash';
 
 @Directive({
-    selector: '[vi-window-drag-area]'
+    selector: '[vi-window-drag-area]',
+    standalone: false
 })
 export class WindowDragAreaDirective extends Destroyable {
     // --------------------------------------------------------------------------

@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
-import * as _ from 'lodash';
 import { SelectListItems, ISelectListItem } from '@ts-core/angular';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-select-list',
-    templateUrl: 'select-list.component.html'
+    templateUrl: 'select-list.component.html',
+    standalone: false
 })
 export class SelectListComponent<T = any> extends DestroyableContainer {
     // --------------------------------------------------------------------------

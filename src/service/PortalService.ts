@@ -10,7 +10,11 @@ export class PortalService extends DestroyableContainer {
     //
     //--------------------------------------------------------------------------
 
-    constructor(protected windows: WindowService, protected sheet: BottomSheetService, protected breakpoint: BootstrapBreakpointService) {
+    constructor(
+        protected windows: WindowService,
+        protected sheet: BottomSheetService,
+        protected breakpoint: BootstrapBreakpointService
+    ) {
         super();
     }
 

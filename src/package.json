@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "18.0.4",
+    "version": "19.0.1",
     "description": "Modules for frontend based on angular material",
     "main": "public-api.js",
     "author": {
@@ -9,10 +9,10 @@
     },
     "license": "ISC",
     "peerDependencies": {
-        "@ts-core/angular": "~18.0.0",
-        "@angular/cdk": "^18.2.11",
-        "@angular/material": "^18.2.11",
-        "@angular/material-moment-adapter": "^18.2.11",
+        "@ts-core/angular": "~19.0.0",
+        "@angular/cdk": "^19.0.5",
+        "@angular/material": "^19.0.5",
+        "@angular/material-moment-adapter": "^19.0.5",
         "bootstrap": "^5.3.3",
         "csshake": "^1.7.0"
     },

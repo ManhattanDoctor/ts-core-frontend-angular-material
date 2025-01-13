@@ -6,7 +6,8 @@ import * as _ from 'lodash';
 @Component({
     selector: 'vi-window-close-element',
     styleUrls: ['window-close-element.component.scss'],
-    template: ''
+    template: '',
+    standalone: false
 })
 export class WindowCloseElementComponent extends WindowElement {
     // --------------------------------------------------------------------------

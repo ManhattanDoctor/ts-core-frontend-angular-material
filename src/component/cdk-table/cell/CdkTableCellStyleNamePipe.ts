@@ -1,9 +1,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import * as _ from 'lodash';
 import { ICdkTableColumn } from '../column/ICdkTableColumn';
+import * as _ from 'lodash';
 
 @Pipe({
-    name: 'viCdkTableCellStyleName'
+    name: 'viCdkTableCellStyleName',
+    standalone: false
 })
 export class CdkTableCellStyleNamePipe implements PipeTransform {
     // --------------------------------------------------------------------------

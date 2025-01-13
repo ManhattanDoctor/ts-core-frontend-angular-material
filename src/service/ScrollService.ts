@@ -21,7 +21,10 @@ export class ScrollService extends Destroyable {
     //
     //--------------------------------------------------------------------------
 
-    constructor(transport: Transport, private nativeWindow: NativeWindowService) {
+    constructor(
+        transport: Transport,
+        private nativeWindow: NativeWindowService
+    ) {
         super();
         transport
             .listen<ScrollCommand>(ScrollCommand.NAME)

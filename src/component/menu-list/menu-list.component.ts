@@ -1,11 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
-import * as _ from 'lodash';
 import { ListItems, IListItem } from '@ts-core/angular';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-menu-list',
-    templateUrl: 'menu-list.component.html'
+    templateUrl: 'menu-list.component.html',
+    standalone: false
 })
 export class MenuListComponent<T = any> extends DestroyableContainer {
     // --------------------------------------------------------------------------

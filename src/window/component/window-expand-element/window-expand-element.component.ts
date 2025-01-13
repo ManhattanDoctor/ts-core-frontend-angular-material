@@ -1,12 +1,13 @@
 import { Component, ElementRef } from '@angular/core';
-import * as _ from 'lodash';
 import { ViewUtil, WindowEvent } from '@ts-core/angular';
 import { WindowElement } from '../WindowElement';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-window-expand-element',
     styleUrls: ['window-expand-element.component.scss'],
-    template: ''
+    template: '',
+    standalone: false
 })
 export class WindowExpandElementComponent extends WindowElement {
     // --------------------------------------------------------------------------

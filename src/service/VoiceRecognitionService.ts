@@ -26,7 +26,10 @@ export class VoiceRecognitionService extends Loadable<VoiceRecognitionEvent, str
     //
     //--------------------------------------------------------------------------
 
-    constructor(protected nativeWindow: NativeWindowService, protected platform: Platform) {
+    constructor(
+        protected nativeWindow: NativeWindowService,
+        protected platform: Platform
+    ) {
         super();
         this.chunks = new Array();
         this.status = LoadableStatus.LOADED;

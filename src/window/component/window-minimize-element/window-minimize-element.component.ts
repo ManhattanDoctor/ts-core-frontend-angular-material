@@ -7,7 +7,8 @@ import * as _ from 'lodash';
 @Component({
     selector: 'vi-window-minimize-element',
     styleUrls: ['window-minimize-element.component.scss'],
-    template: ''
+    template: '',
+    standalone: false
 })
 export class WindowMinimizeElementComponent extends WindowElement {
     // --------------------------------------------------------------------------

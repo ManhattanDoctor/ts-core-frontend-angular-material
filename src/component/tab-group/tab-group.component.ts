@@ -6,7 +6,8 @@ import { SelectListItems, ISelectListItem } from '@ts-core/angular';
 
 @Component({
     selector: 'vi-tab-group',
-    templateUrl: 'tab-group.component.html'
+    templateUrl: 'tab-group.component.html',
+    standalone: false
 })
 export class TabGroupComponent<T = any> extends DestroyableContainer {
     // --------------------------------------------------------------------------

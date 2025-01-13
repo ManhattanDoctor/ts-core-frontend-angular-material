@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Pipe, PipeTransform } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
-import * as _ from 'lodash';
 import { CdkTableCellValue, ICdkTableColumn } from '../column/ICdkTableColumn';
+import * as _ from 'lodash';
 
 @Pipe({
     name: 'viCdkTableCellValue',
-    pure: false
+    pure: false,
+    standalone: false
 })
 export class CdkTableCellValuePipe<U> extends DestroyableContainer implements PipeTransform {
     // --------------------------------------------------------------------------

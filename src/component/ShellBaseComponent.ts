@@ -23,7 +23,10 @@ export class ShellBaseComponent extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    constructor(public notifications: NotificationService, public breakpointObserver: BreakpointObserver) {
+    constructor(
+        public notifications: NotificationService,
+        public breakpointObserver: BreakpointObserver
+    ) {
         super();
     }
 

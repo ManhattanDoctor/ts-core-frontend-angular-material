@@ -5,7 +5,8 @@ import { WindowQuestionBaseComponent } from '../WindowQuestionBaseComponent';
 import * as _ from 'lodash';
 
 @Component({
-    templateUrl: 'window-question.component.html'
+    templateUrl: 'window-question.component.html',
+    standalone: false
 })
 export class WindowQuestionComponent extends WindowQuestionBaseComponent {
     // --------------------------------------------------------------------------
@@ -22,7 +23,10 @@ export class WindowQuestionComponent extends WindowQuestionBaseComponent {
     //
     // --------------------------------------------------------------------------
 
-    constructor(container: ViewContainerRef, protected language: LanguageService) {
+    constructor(
+        container: ViewContainerRef,
+        protected language: LanguageService
+    ) {
         super(container);
         ViewUtil.addClasses(container.element, 'd-block');
     }

@@ -1,14 +1,15 @@
-import * as _ from 'lodash';
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
 import { Component, Input, ViewContainerRef } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
 import { PageEvent } from '@angular/material/paginator';
 import { PaginableDataSourceMapCollection } from '@ts-core/common';
 import { CdkPaginableTableDataSource } from '../CdkPaginableTableDataSource';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-cdk-table-paginable',
-    templateUrl: 'cdk-table-paginable.component.html'
+    templateUrl: 'cdk-table-paginable.component.html',
+    standalone: false
 })
 export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
     PaginableDataSourceMapCollection<U>,

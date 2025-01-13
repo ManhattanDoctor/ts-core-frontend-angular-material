@@ -5,7 +5,8 @@ import { ViewUtil } from '@ts-core/angular';
 
 @Component({
     selector: 'vi-language-selector',
-    templateUrl: 'language-selector.component.html'
+    templateUrl: 'language-selector.component.html',
+    standalone: false
 })
 export class LanguageSelectorComponent extends DestroyableContainer {
     // --------------------------------------------------------------------------
@@ -23,7 +24,10 @@ export class LanguageSelectorComponent extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    constructor(protected element: ElementRef, public language: LanguageService) {
+    constructor(
+        protected element: ElementRef,
+        public language: LanguageService
+    ) {
         super();
         ViewUtil.addClasses(element, 'd-block');
     }
