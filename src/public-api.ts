@@ -4,8 +4,6 @@ export * from './VIMatModule';
 export * from './component/ShellBaseComponent';
 export * from './component/tab-group/tab-group.component';
 export * from './component/menu-list/menu-list.component';
-export * from './component/select-list/select-list.component';
-export * from './component/language/language-selector/language-selector.component';
 //
 export * from './component/cdk-table/CdkTableBaseComponent';
 export * from './component/cdk-table/CdkTableDataSource';

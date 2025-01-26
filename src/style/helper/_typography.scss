@@ -1,6 +1,6 @@
 @use '@angular/material' as mat;
 
-@mixin level($theme, $level, $isImportant: true) {
+@mixin level($theme, $level, $isImportant) {
     @if $isImportant {
         font-size: mat.get-theme-typography($theme, $level, font-size) !important;
         font-weight: mat.get-theme-typography($theme, $level, font-weight) !important;

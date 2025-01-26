@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DestroyableContainer, FilterableDataSourceMapCollection } from '@ts-core/common';
-import * as _ from 'lodash';
 import { ICdkTableRow } from './row/ICdkTableRow';
 import { ICdkTableColumn } from './column/ICdkTableColumn';
 import { Sort, SortDirection } from '@angular/material/sort';
 import { CdkTableDataSource } from './CdkTableDataSource';
 import { merge, takeUntil } from 'rxjs';
 import { MatTable } from '@angular/material/table';
+import * as _ from 'lodash';
 
 @Component({ template: '' })
 export abstract class CdkTableBaseComponent<

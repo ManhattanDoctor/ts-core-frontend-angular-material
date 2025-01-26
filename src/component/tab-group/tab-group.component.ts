@@ -1,8 +1,8 @@
 import { Component, Input, booleanAttribute } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { DestroyableContainer } from '@ts-core/common';
-import * as _ from 'lodash';
 import { SelectListItems, ISelectListItem } from '@ts-core/angular';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-tab-group',

@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-window-close-element',
-    styleUrls: ['window-close-element.component.scss'],
+    styleUrl: '../window-element/window-element.component.scss',
     template: '',
     standalone: false
 })

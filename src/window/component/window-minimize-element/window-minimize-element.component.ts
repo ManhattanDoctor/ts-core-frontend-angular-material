@@ -6,7 +6,7 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-window-minimize-element',
-    styleUrls: ['window-minimize-element.component.scss'],
+    styleUrl: 'window-minimize-element.component.scss',
     template: '',
     standalone: false
 })
@@ -17,8 +17,10 @@ export class WindowMinimizeElementComponent extends WindowElement {
     //
     // --------------------------------------------------------------------------
 
-    public static ICON_CLASS: string = null;
+    public static ICON_MINIMIZE_CLASS: string = 'fas fa-minimize';
     public static ICON_MINIMIZE_VALUE: string = null;
+
+    public static ICON_MAXIMIZE_CLASS: string = 'fas fa-maximize';
     public static ICON_MAXIMIZE_VALUE: string = null;
 
     // --------------------------------------------------------------------------
@@ -40,6 +42,8 @@ export class WindowMinimizeElementComponent extends WindowElement {
     private commitIconProperties = (): void => {
         let icon = this.window.isMinimized ? WindowMinimizeElementComponent.ICON_MAXIMIZE_VALUE : WindowMinimizeElementComponent.ICON_MINIMIZE_VALUE;
         ViewUtil.setProperty(this.nativeElement, 'innerHTML', icon);
+        ViewUtil.toggleClass(this.nativeElement, WindowMinimizeElementComponent.ICON_MAXIMIZE_CLASS, this.window.isMinimized);
+        ViewUtil.toggleClass(this.nativeElement, WindowMinimizeElementComponent.ICON_MINIMIZE_CLASS, !this.window.isMinimized);
     };
 
     // --------------------------------------------------------------------------
@@ -64,8 +68,8 @@ export class WindowMinimizeElementComponent extends WindowElement {
             ViewUtil.setProperty(this.nativeElement, 'innerHTML', WindowMinimizeElementComponent.ICON_MINIMIZE_VALUE);
         }
 
-        if (!_.isNil(WindowMinimizeElementComponent.ICON_CLASS)) {
-            ViewUtil.addClasses(this.nativeElement, WindowMinimizeElementComponent.ICON_CLASS);
+        if (!_.isNil(WindowMinimizeElementComponent.ICON_MINIMIZE_CLASS)) {
+            ViewUtil.addClasses(this.nativeElement, WindowMinimizeElementComponent.ICON_MINIMIZE_CLASS);
         }
 
         ViewUtil.addClass(this.nativeElement, 'mouse-active');

@@ -1,8 +1,8 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { DestroyableContainer } from '@ts-core/common';
 import { filter, takeUntil } from 'rxjs';
-import * as _ from 'lodash';
 import { INotificationConfig, NotificationService, NotificationServiceEvent } from '@ts-core/angular';
+import * as _ from 'lodash';
 
 export class ShellBaseComponent extends DestroyableContainer {
     // --------------------------------------------------------------------------

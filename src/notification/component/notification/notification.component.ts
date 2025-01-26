@@ -6,8 +6,8 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-notification',
+    styleUrl: 'notification.component.scss',
     templateUrl: 'notification.component.html',
-    styleUrls: ['notification.component.scss'],
     standalone: false
 })
 export class NotificationComponent extends NotificationQuestionBaseComponent {

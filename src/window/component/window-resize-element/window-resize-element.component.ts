@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-window-resize-element',
-    styleUrls: ['window-resize-element.component.scss'],
+    styleUrl: 'window-resize-element.component.scss',
     template: '',
     standalone: false
 })

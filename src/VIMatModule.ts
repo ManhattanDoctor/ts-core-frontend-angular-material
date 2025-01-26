@@ -8,9 +8,7 @@ import { VoiceRecognitionButtonDirective } from './directive/VoiceRecognitionBut
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LanguageSelectorComponent } from './component/language/language-selector/language-selector.component';
 import { MenuListComponent } from './component/menu-list/menu-list.component';
-import { SelectListComponent } from './component/select-list/select-list.component';
 import { TabGroupComponent } from './component/tab-group/tab-group.component';
 
 import { CdkTablePaginableComponent } from './component/cdk-table/cdk-table-paginable/cdk-table-paginable.component';
@@ -52,8 +50,6 @@ let declarations = [
 
     TabGroupComponent,
     MenuListComponent,
-    SelectListComponent,
-    LanguageSelectorComponent,
 
     CdkTablePaginableComponent,
     CdkTableFilterableComponent,

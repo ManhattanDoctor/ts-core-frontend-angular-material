@@ -2,8 +2,8 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { LanguageService } from '@ts-core/frontend';
 import { Subscription } from 'rxjs';
 import { Injectable, OnDestroy } from '@angular/core';
-import * as _ from 'lodash';
 import { FinancePipe } from '@ts-core/angular';
+import * as _ from 'lodash';
 
 @Injectable()
 export class LanguageMatPaginatorIntl extends MatPaginatorIntl implements OnDestroy {

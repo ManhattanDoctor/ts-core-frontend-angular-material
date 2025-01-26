@@ -48,7 +48,7 @@ export class VoiceRecognitionButtonDirective extends Loadable<void> {
     protected commitStatusChangedProperties(oldStatus: LoadableStatus, newStatus: LoadableStatus): void {
         super.commitStatusChangedProperties(oldStatus, newStatus);
 
-        ViewUtil.toggleClass(this.element, 'text-base', this.isLoading);
+        ViewUtil.toggleClass(this.element, 'color-base', this.isLoading);
 
         switch (newStatus) {
             case LoadableStatus.LOADING:

@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 
 @Component({
     selector: 'vi-window-expand-element',
-    styleUrls: ['window-expand-element.component.scss'],
+    styleUrl: 'window-expand-element.component.scss',
     template: '',
     standalone: false
 })

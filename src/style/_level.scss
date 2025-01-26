@@ -1,0 +1,42 @@
+@use '@angular/material' as mat;
+
+@mixin color() {
+    .level-0 {
+        box-shadow: var(--mat-sys-level0) !important;
+    }
+    .level-1 {
+        box-shadow: var(--mat-sys-level1) !important;
+    }
+    .level-2 {
+        box-shadow: var(--mat-sys-level2) !important;
+    }
+    .level-3 {
+        box-shadow: var(--mat-sys-level3) !important;
+    }
+    .level-4 {
+        box-shadow: var(--mat-sys-level4) !important;
+    }
+    .level-5 {
+        box-shadow: var(--mat-sys-level5) !important;
+    }
+
+    .z-index-1 {
+        z-index: 1;
+    }
+    .z-index-2 {
+        z-index: 2;
+    }
+    .z-index-3 {
+        z-index: 3;
+    }
+    .z-index-4 {
+        z-index: 4;
+    }
+    .z-index-5 {
+        z-index: 5;
+    }
+}
+
+@mixin theme() {
+    @include color();
+}
