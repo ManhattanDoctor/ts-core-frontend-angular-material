@@ -57,7 +57,7 @@
         (click)="rowClickHandler(row, $event)"
     ></mat-row>
 
-    <p class="p-3 flex-shrink-0 text-center mouse-inactive" [vi-translate]="settings?.noDataId" *matNoDataRow></p>
+    <p class="p-3 flex-shrink-0 text-center mouse-disabled" [vi-translate]="settings?.noDataId" *matNoDataRow></p>
 </mat-table>
 
 <mat-progress-bar class="flex-shrink-0 border-line variant" [mode]="source.isLoading ? 'indeterminate' : 'determinate'"></mat-progress-bar>

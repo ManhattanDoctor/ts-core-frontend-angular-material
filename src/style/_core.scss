@@ -7,6 +7,10 @@
 @import 'bootstrap/scss/mixins/breakpoints';
 
 @mixin material() {
+    --bs-border-width: 1px;
+    --bs-border-style: solid;
+    --bs-border-color: var(--mat-sys-outline-variant);
+    
     $dialog-border-radius: var(--mdc-dialog-container-shape, var(--mat-sys-corner-extra-large));
     $bottom-sheet-border-radius: var(--mdc-bottom-sheet-container-shape, var(--mat-sys-corner-extra-large));
 
@@ -74,13 +78,9 @@
         }
         */
     }
-    mat-dialog-container,
-    mat-datepicker-content,
-    mat-bottom-sheet-container {
-        box-sizing: content-box;
-        border-width: 1px;
-        border-style: solid;
 
+    mat-dialog-container,
+    mat-bottom-sheet-container {
         vi-window-close-element,
         vi-window-expand-element,
         vi-window-minimize-element {
@@ -89,6 +89,7 @@
             height: 32px;
             border-width: 1px;
             border-style: solid;
+            border-color: var(--mat-sys-outline-variant);
         }
         vi-window-close-element {
             right: -16px;
@@ -112,6 +113,8 @@
         border-radius: 0 !important;
         border-bottom-width: 1px;
         border-bottom-style: solid;
+        border-color: var(--mat-sys-outline);
+
         &:last-child {
             border-bottom: none !important;
         }
@@ -131,6 +134,12 @@
         .mat-expansion-panel-body {
             padding: 0 !important;
         }
+    }
+
+    mat-datepicker-content {
+        border-bottom-width: 1px;
+        border-bottom-style: solid;
+        border-color: var(--mat-sys-outline);
     }
 
     mat-progress-bar {
@@ -163,6 +172,14 @@
                     @include vi.mouse-active();
                 }
             }
+            &.selected {
+                background-color: var(--mat-sys-surface-container-highest) !important;
+            }
+            &.active:not(.selected) {
+                &:hover {
+                    background-color: var(--mat-sys-surface-container-high) !important;
+                }
+            }
         }
         .mat-column-item-menu {
             max-width: 44px;
@@ -184,14 +201,21 @@
         &.vi-window,
         &.vi-notification {
             position: absolute !important;
+            box-sizing: content-box;
             border-radius: $dialog-border-radius;
+            border-style: solid;
+            border-width: 1px;
+            border-color: var(--mat-sys-outline-variant);
         }
         &.vi-draggable,
         &.vi-resizeable {
             border-radius: $dialog-border-radius;
         }
         &.vi-window {
-            border: 2px solid transparent;
+            box-shadow: var(--mat-sys-level3);
+        }
+        &.vi-notification {
+            box-shadow: var(--mat-sys-level2);
         }
         &.vi-minimized {
             height: auto !important;
@@ -201,6 +225,7 @@
             animation: blink 1s;
             animation-iteration-count: 5;
             border-radius: $dialog-border-radius;
+            border-color: var(--mat-sys-primary);
             @keyframes blink {
                 50% {
                     border-color: transparent;
@@ -211,9 +236,7 @@
             padding: 0 !important;
             border-style: solid;
             border-width: 1px;
-        }
-        .mat-mdc-menu-content {
-            padding: 0 !important;
+            border-color: var(--mat-sys-outline-variant);
         }
         .mat-mdc-menu-panel {
             max-width: none !important;
@@ -221,6 +244,10 @@
             min-height: 0px !important;
             border-style: solid;
             border-width: 1px;
+            border-color: var(--mat-sys-outline-variant);
+        }
+        .mat-mdc-menu-content {
+            padding: 0 !important;
         }
         .mat-mdc-autocomplete-panel {
             padding: 0 !important;
@@ -240,30 +267,16 @@
         border-bottom: none !important;
     }
 
-    /*
-    .mat-label-small,
-    .mat-label-medium,
-    .mat-label-large,
-    .mat-body-small,
-    .mat-body-medium,
-    .mat-body-large,
-    .mat-title-small,
-    .mat-title-medium,
-    .mat-title-large,
-    .mat-display-small,
-    .mat-display-medium,
-    .mat-display-large,
-    .mat-headline-small,
-    .mat-headline-large,
-    .mat-headline-medium {
-        margin: 0;
+    .cdk-overlay-dark-backdrop {
+        background: rgba(black, 0.64);
     }
-    */
+    ::-webkit-scrollbar-thumb {
+        background-color: var(--mat-sys-outline);
+    }
 }
 
 @mixin core() {
     @include vi.core();
     @include mat.core();
-    @include bootstrap.core();
     @include material();
 }

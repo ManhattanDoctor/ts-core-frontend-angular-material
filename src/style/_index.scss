@@ -16,20 +16,7 @@
     @include border.color();
     @include container.color();
 
-    mat-expansion-panel,
-    mat-datepicker-content {
-        border-color: var(--mat-sys-outline);
-    }
 
-    mat-dialog-container,
-    mat-bottom-sheet-container {
-        border-color: var(--mat-sys-outline-variant);
-        vi-window-close-element,
-        vi-window-expand-element,
-        vi-window-minimize-element {
-            border-color: var(--mat-sys-outline-variant);
-        }
-    }
     mat-progress-bar {
         &.border-line {
             &:not(.transparent) {
@@ -56,42 +43,12 @@
             }
         }
     }
-    mat-table {
-        mat-row {
-            &.selected {
-                background-color: var(--mat-sys-surface-container-highest) !important;
-            }
-            &.active:not(.selected) {
-                &:hover {
-                    background-color: var(--mat-sys-surface-container-high) !important;
-                }
-            }
-        }
-    }
     mat-list-item {
         &.mdc-list-item--disabled {
             @include vi.mouse-inactive();
         }
     }
-    .mat-mdc-tooltip-trigger {
-        touch-action: auto !important;
-    }
-    .cdk-overlay-pane {
-        &.vi-blink {
-            border-color: var(--mat-sys-primary);
-        }
-        .mat-mdc-menu-panel,
-        .mat-mdc-select-panel {
-            border-color: var(--mat-sys-outline-variant)
-        }
-    }
-    .cdk-overlay-dark-backdrop {
-        background: rgba(black, 0.64);
-    }
 
-    ::-webkit-scrollbar-thumb {
-        background-color: var(--mat-sys-outline);
-    }
 }
 
 @mixin typography($theme) {

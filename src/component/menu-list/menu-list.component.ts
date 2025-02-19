@@ -8,7 +8,7 @@ import * as _ from 'lodash';
     templateUrl: 'menu-list.component.html',
     standalone: false
 })
-export class MenuListComponent<T = any> extends DestroyableContainer {
+export class MenuListComponent<U extends IListItem<V>, V = any> extends DestroyableContainer {
     // --------------------------------------------------------------------------
     //
     // 	Properties
@@ -16,5 +16,5 @@ export class MenuListComponent<T = any> extends DestroyableContainer {
     // --------------------------------------------------------------------------
 
     @Input()
-    public list: ListItems<IListItem<T>>;
+    public list: ListItems<U>;
 }
