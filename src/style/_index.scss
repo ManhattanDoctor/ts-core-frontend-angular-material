@@ -16,7 +16,6 @@
     @include border.color();
     @include container.color();
 
-
     mat-progress-bar {
         &.border-line {
             &:not(.transparent) {

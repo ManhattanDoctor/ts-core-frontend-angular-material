@@ -121,7 +121,6 @@ export abstract class WindowServiceBase extends WindowService {
             let zIndex = window.isOnTop ? this.topZIndex : currentIndex--;
             this.zIndexSet(window, zIndex);
         }
-
         this.windowsArray.sort(this.zIndexSortFunction);
         this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, topWindow));
     }

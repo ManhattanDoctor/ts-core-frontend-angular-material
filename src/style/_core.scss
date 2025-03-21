@@ -7,9 +7,11 @@
 @import 'bootstrap/scss/mixins/breakpoints';
 
 @mixin material() {
+    /*
     --bs-border-width: 1px;
     --bs-border-style: solid;
     --bs-border-color: var(--mat-sys-outline-variant);
+    */
     
     $dialog-border-radius: var(--mdc-dialog-container-shape, var(--mat-sys-corner-extra-large));
     $bottom-sheet-border-radius: var(--mdc-bottom-sheet-container-shape, var(--mat-sys-corner-extra-large));
@@ -33,7 +35,7 @@
             vi-window-resize-element {
                 display: block !important;
             }
-        }
+        }w
         vi-window-resize-element {
             width: 32px;
             right: -16px;

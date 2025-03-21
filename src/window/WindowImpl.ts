@@ -2,10 +2,10 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Observable, Subject, Subscription, filter, takeUntil } from 'rxjs';
 import { IWindow, IWindowConfig, IWindowContent, ViewUtil, WindowBase, WindowEvent } from '@ts-core/angular';
 import { WindowProperties } from './WindowProperties';
-import * as _ from 'lodash';
 import { WindowElement } from './component/WindowElement';
 import { ArrayUtil } from '@ts-core/common';
 import { ComponentRef } from '@angular/core';
+import * as _ from 'lodash';
 
 export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
     // --------------------------------------------------------------------------
