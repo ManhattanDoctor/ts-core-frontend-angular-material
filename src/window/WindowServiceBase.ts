@@ -96,41 +96,12 @@ export abstract class WindowServiceBase extends WindowService {
         let item = items[0];
         item.isOnTop = true;
         this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, item));
-        /*
-        if (_.isEmpty(this.windowsArray)) {
-            return;
-        }
-        let window = null;
-        let maxZIndex = 0;
-        for (let item of this.windowsArray) {
-            let index = this.zIndexGet(item);
-            if (index < 0 || maxZIndex >= index) {
-                continue;
-            }
-            window = item;
-            maxZIndex = index;
-        }
-        if (_.isNil(window) || window.isOnTop) {
-            return;
-        }
-        window.isOnTop = true;
-        this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, window));
-        */
     }
 
     protected setWindowOnTop(window: IWindow): void {
-        /*
-        let currentIndex = this.topZIndex - 2;
-        for (let i = 0; i < this.windowsArray.length; i++) {
-            let item = this.windowsArray[i];
-            if (_.isNil(item.container)) {
-                continue;
-            }
-            let isOnTop = item.isOnTop = item === window;
-            let zIndex = isOnTop ? this.topZIndex : currentIndex--;
-            this.zIndexSet(item, zIndex);
-        }
-        */
+        let index = this.windowsArray.indexOf(window);
+        ArrayUtil.move(this.windowsArray, index, 0);
+
         let items = this.windowsGet();
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
@@ -188,10 +159,7 @@ export abstract class WindowServiceBase extends WindowService {
         this.windows.set(config, content);
 
         let { window } = content;
-        if (!_.isNil(window)) {
-            this.windowsArray.unshift(window);
-        }
-
+        this.windowsArray.push(window);
         this.observer.next(new ObservableData(WindowServiceEvent.OPENED, window));
     }
 
@@ -205,10 +173,7 @@ export abstract class WindowServiceBase extends WindowService {
         this.windows.delete(config);
 
         let { window } = content;
-        if (!_.isNil(window)) {
-            ArrayUtil.remove(this.windowsArray, window);
-        }
-
+        ArrayUtil.remove(this.windowsArray, window);
         this.observer.next(new ObservableData(WindowServiceEvent.CLOSED, window));
     }
 
