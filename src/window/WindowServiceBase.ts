@@ -1,4 +1,4 @@
-import { ObservableData, ClassType, Destroyable } from '@ts-core/common';
+import { ObservableData, ClassType, Destroyable, ArrayUtil } from '@ts-core/common';
 import { LanguageService } from '@ts-core/frontend';
 import { Observable, Subject } from 'rxjs';
 import {
@@ -53,6 +53,7 @@ export abstract class WindowServiceBase extends WindowService {
     protected properties: WindowPropertiesManager;
 
     protected _windows: Map<IWindowConfig, IWindowContent>;
+    protected _windowsArray: Array<IWindow>;
 
     // --------------------------------------------------------------------------
     //
@@ -65,6 +66,8 @@ export abstract class WindowServiceBase extends WindowService {
         this.language = language;
 
         this._windows = new Map();
+        this._windowsArray = new Array();
+
         this.observer = new Subject();
         this.properties = new WindowPropertiesManager(cookies);
 
@@ -86,44 +89,32 @@ export abstract class WindowServiceBase extends WindowService {
     // --------------------------------------------------------------------------
 
     protected updateTop(): void {
-        let zIndex = 0;
-        let topWindow: IWindow = null;
-
-        let windows = this.windowsGet();
-        for (let window of windows) {
-            if (_.isNil(window) || _.isNil(window.container)) {
-                continue;
-            }
-            let index = this.zIndexGet(window);
-            if (zIndex >= index) {
-                continue;
-            }
-            zIndex = index;
-            topWindow = window;
-        }
-
-        if (_.isNil(topWindow) || topWindow.isOnTop) {
+        let items = this.windowsGet();
+        if (_.isEmpty(items)) {
             return;
         }
-        topWindow.isOnTop = true;
-        this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, topWindow));
+        let item = items[0];
+        item.isOnTop = true;
+        this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, item));
     }
 
-    protected setWindowOnTop(topWindow: IWindow): void {
-        let currentIndex = this.topZIndex - 2;
-        let windows = this.windowsGet();
-        for (let window of windows) {
-            if (_.isNil(window) || _.isNil(window.container)) {
-                continue;
-            }
-            window.isOnTop = window === topWindow;
+    protected setWindowOnTop(window: IWindow): void {
+        let index = this.windowsArray.indexOf(window);
+        ArrayUtil.move(this.windowsArray, index, 0);
 
-            let zIndex = window.isOnTop ? this.topZIndex : currentIndex--;
-            this.zIndexSet(window, zIndex);
+        let items = this.windowsGet();
+        for (let i = 0; i < items.length; i++) {
+            let item = items[i];
+            item.isOnTop = item === window;
+            let zIndex = this.topZIndex;
+            if (!item.isOnTop) {
+                zIndex -= i;
+            }
+            this.zIndexSet(item, zIndex);
         }
 
         this.windowsArray.sort(this.zIndexSortFunction);
-        this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, topWindow));
+        this.observer.next(new ObservableData(WindowServiceEvent.SETTED_ON_TOP, window));
     }
 
     protected checkPosition<T>(item: IWindow<T>): void {
@@ -138,23 +129,19 @@ export abstract class WindowServiceBase extends WindowService {
         return this.windowsArray.some(item => item !== window && x === item.getX() && y === item.getY());
     }
 
-    protected windowsGet(): Array<IWindow> {
-        return this.windowsArray;
+    protected zIndexGet(item: IWindow): number {
+        return !_.isNil(item) && !_.isNil(item.container) ? parseInt(ViewUtil.getStyle(item.container.parentElement, 'zIndex'), 10) : -1;
     }
 
-    protected zIndexGet(window: IWindow): number {
-        return !_.isNil(window) && !_.isNil(window.container) ? parseInt(ViewUtil.getStyle(window.container.parentElement, 'zIndex'), 10) : -1;
-    }
-
-    protected zIndexSet(window: IWindow, index: number): void {
-        if (_.isNil(window)) {
+    protected zIndexSet(item: IWindow, index: number): void {
+        if (_.isNil(item)) {
             return;
         }
-        if (!_.isNil(window.wrapper)) {
-            ViewUtil.setStyle(window.wrapper, 'zIndex', index);
+        if (!_.isNil(item.wrapper)) {
+            ViewUtil.setStyle(item.wrapper, 'zIndex', index);
         }
-        if (!_.isNil(window.backdrop)) {
-            ViewUtil.setStyle(window.backdrop, 'zIndex', index);
+        if (!_.isNil(item.backdrop)) {
+            ViewUtil.setStyle(item.backdrop, 'zIndex', index);
         }
     }
 
@@ -169,23 +156,29 @@ export abstract class WindowServiceBase extends WindowService {
     // --------------------------------------------------------------------------
 
     protected add<T>(config: IWindowConfig<T>, content: IWindowContent<T>): void {
-        this._windows.set(config, content);
-        this.observer.next(new ObservableData(WindowServiceEvent.OPENED, content.window));
+        this.windows.set(config, content);
+
+        let { window } = content;
+        this.windowsArray.push(window);
+        this.observer.next(new ObservableData(WindowServiceEvent.OPENED, window));
     }
 
     protected remove<T>(config: IWindowConfig<T>): void {
-        let window = this._windows.get(config);
-        if (_.isNil(window)) {
+        let content = this.windows.get(config);
+        if (_.isNil(content)) {
             return null;
         }
 
-        window.close();
-        this._windows.delete(config);
-        this.observer.next(new ObservableData(WindowServiceEvent.CLOSED, window.window));
+        content.close();
+        this.windows.delete(config);
+
+        let { window } = content;
+        ArrayUtil.remove(this.windowsArray, window);
+        this.observer.next(new ObservableData(WindowServiceEvent.CLOSED, window));
     }
 
     protected getById<T>(id: string): IWindow<T> {
-        let item = _.find(Array.from(this._windows.values()), item => item.config.id === id);
+        let item = _.find(Array.from(this.windows.values()), item => item.config.id === id);
         return !_.isNil(item) ? item.window : null;
     }
 
@@ -270,7 +263,7 @@ export abstract class WindowServiceBase extends WindowService {
                 case WindowEvent.CLOSED:
                     subscription.unsubscribe();
                     this.remove(config);
-                    if (window.isOnTop && this.windows.size > 0) {
+                    if (window.isOnTop) {
                         this.updateTop();
                     }
                     break;
@@ -351,6 +344,10 @@ export abstract class WindowServiceBase extends WindowService {
 
     protected abstract openQuestion<T>(config: IWindowConfig<T>): IQuestion;
 
+    protected windowsGet(): Array<IWindow> {
+        return this.windowsArray;
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Additional Methods
@@ -373,16 +370,6 @@ export abstract class WindowServiceBase extends WindowService {
 
     // --------------------------------------------------------------------------
     //
-    // 	Private Properties
-    //
-    // --------------------------------------------------------------------------
-
-    private get windowsArray(): Array<IWindow> {
-        return Array.from(this.windows.values()).map(item => item.window);
-    }
-
-    // --------------------------------------------------------------------------
-    //
     // 	Public Properties
     //
     // --------------------------------------------------------------------------
@@ -394,6 +381,16 @@ export abstract class WindowServiceBase extends WindowService {
     public get windows(): Map<IWindowConfig, IWindowContent> {
         return this._windows;
     }
+
+    public get windowsArray(): Array<IWindow> {
+        return this._windowsArray;
+    }
+
+    /*
+    public get windowsArray(): Array<IWindow> {
+        return Array.from(this.windows.values()).map(item => item.window);
+    }
+    */
 }
 
 class WindowPropertiesManager extends Destroyable {
