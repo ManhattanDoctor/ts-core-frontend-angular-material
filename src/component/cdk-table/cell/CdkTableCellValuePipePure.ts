@@ -12,7 +12,7 @@ export class CdkTableCellValuePipePure implements PipeTransform {
     //
     // --------------------------------------------------------------------------
 
-    public transform<U>(item: U, column: ICdkTableColumn<U>): CdkTableCellValue<U> {
+    public transform<U>(item: U, column: ICdkTableColumn<U>): CdkTableCellValue<U> | Promise<CdkTableCellValue<U>> {
         return !_.isNil(column.format) ? column.format(item, column) : item[column.name];
     }
 }
