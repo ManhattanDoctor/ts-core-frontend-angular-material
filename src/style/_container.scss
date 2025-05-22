@@ -1,6 +1,4 @@
-@use '@angular/material' as mat;
-
-@mixin color() {
+@mixin core() {
     // container
     .background {
         color: var(--mat-sys-on-background) !important;
@@ -154,8 +152,4 @@
     .error-container-background {
         background-color: var(--mat-sys-error-container) !important;
     }
-}
-
-@mixin theme() {
-    @include color();
 }

@@ -1,6 +1,4 @@
-@use '@angular/material' as mat;
-
-@mixin color() {
+@mixin core() {
     .level-0 {
         box-shadow: var(--mat-sys-level0) !important;
     }
@@ -35,8 +33,4 @@
     .z-index-5 {
         z-index: 5 !important;
     }
-}
-
-@mixin theme() {
-    @include color();
 }
