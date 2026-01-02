@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { booleanAttribute, Component, Input } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
 import { ListItems, IListItem } from '@ts-core/angular';
 import * as _ from 'lodash';
@@ -17,4 +17,7 @@ export class MenuListComponent<U extends IListItem<V>, V = any> extends Destroya
 
     @Input()
     public list: ListItems<U>;
+
+    @Input({ transform: booleanAttribute })
+    public isMaterialIcon: boolean;
 }

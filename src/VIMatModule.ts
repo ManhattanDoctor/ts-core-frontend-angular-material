@@ -16,6 +16,7 @@ import { CdkTableFilterableComponent } from './component/cdk-table/cdk-table-fil
 import { CdkTablePaginableBookmarkComponent } from './component/cdk-table/cdk-table-paginable-bookmark/cdk-table-paginable-bookmark.component';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
@@ -69,6 +70,7 @@ let declarations = [
         CommonModule,
         FormsModule,
         MatTabsModule,
+        MatIconModule,
         MatListModule,
         MatMenuModule,
         MatSelectModule,
