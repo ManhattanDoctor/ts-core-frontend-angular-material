@@ -1,7 +1,7 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "19.0.10",
-    "description": "Modules for frontend based on angular material",
+    "version": "21.0.1",
+    "description": "TypeScript library providing UI components, pipes, directives and services for Angular Material applications",
     "main": "public-api.js",
     "author": {
         "name": "Renat Gubaev",
@@ -9,11 +9,11 @@
     },
     "license": "ISC",
     "peerDependencies": {
-        "@ts-core/angular": "~19.0.9",
-        "@angular/cdk": "^19.0.5",
-        "@angular/material": "^19.0.5",
-        "@angular/material-moment-adapter": "^19.0.5",
-        "bootstrap": "^5.3.3",
+        "@ts-core/angular": "~21.0.0",
+        "@angular/cdk": "^21.0.6",
+        "@angular/material": "^21.0.6",
+        "@angular/material-moment-adapter": "^21.0.6",
+        "bootstrap": "^5.3.8",
         "csshake": "^1.7.0"
     },
     "repository": {
@@ -21,7 +21,16 @@
         "url": "git+https://github.com/ManhattanDoctor/ts-core-frontend-angular-material.git"
     },
     "keywords": [
-        "typescript"
+        "typescript",
+        "angular",
+        "angular-material",
+        "material-design",
+        "components",
+        "ui-library",
+        "frontend",
+        "pipes",
+        "directives",
+        "services"
     ],
     "bugs": {
         "url": "https://github.com/ManhattanDoctor/ts-core-frontend-angular-material/issues"
