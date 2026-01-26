@@ -1,12 +1,12 @@
 import { Observable, Subject, takeUntil, Subscription } from 'rxjs';
-import * as _ from 'lodash';
 import { DestroyableContainer } from '@ts-core/common';
 import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { WindowProperties } from '../window/WindowProperties';
 import { IWindow, IWindowConfig, IWindowContent, ViewUtil, WindowEvent } from '@ts-core/angular';
 import { WindowElement } from '../window/component/WindowElement';
 import { ArrayUtil } from '@ts-core/common';
-import { ComponentRef } from '@angular/core';
+import { ComponentRef, Signal, signal, WritableSignal } from '@angular/core';
+import * as _ from 'lodash';
 
 export class BottomSheetImpl<T = any> extends DestroyableContainer implements IWindow {
     // --------------------------------------------------------------------------
@@ -19,6 +19,10 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
     private _backdrop: HTMLElement;
     private _container: HTMLElement;
     private _isDisabled: boolean = false;
+
+    private _onTop: WritableSignal<boolean>;
+    private _disabled: WritableSignal<boolean>;
+    private _minimized: WritableSignal<boolean>;
 
     protected elements: Array<ComponentRef<WindowElement>>;
     protected properties: WindowProperties;
@@ -35,6 +39,10 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
     constructor(properties: WindowProperties) {
         super();
         this.observer = new Subject();
+
+        this._onTop = signal(false);
+        this._disabled = signal(false);
+        this._minimized = signal(false);
 
         this.properties = properties;
         this.content.window = this;
@@ -112,7 +120,11 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
         */
     }
 
-    protected commitIsDisabledProperties(): void {}
+    protected commitIsDisabledProperties(): void {
+        if (!_.isNil(this._disabled)) {
+            this._disabled.set(this.isDisabled);
+        }
+    }
 
     protected getConfig<T>(): IWindowConfig<T> {
         return this.properties.config;
@@ -195,6 +207,10 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
         this._wrapper = null;
         this._backdrop = null;
         this._container = null;
+
+        this._onTop = null;
+        this._disabled = null;
+        this._minimized = null;
     }
 
     public blink(): void {}
@@ -302,6 +318,18 @@ export class BottomSheetImpl<T = any> extends DestroyableContainer implements IW
         }
         this._isDisabled = value;
         this.commitIsDisabledProperties();
-        this.emit(WindowEvent.DISABLED_CHANGED);
+        this.emit(WindowEvent.IS_DISABLED_CHANGED);
+    }
+
+    public get onTop(): Signal<boolean> {
+        return this._onTop;
+    }
+
+    public get disabled(): Signal<boolean> {
+        return this._disabled;
+    }
+
+    public get minimized(): Signal<boolean> {
+        return this._minimized;
     }
 }

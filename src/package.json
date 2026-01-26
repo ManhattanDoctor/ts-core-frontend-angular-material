@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "21.0.1",
+    "version": "21.0.2",
     "description": "TypeScript library providing UI components, pipes, directives and services for Angular Material applications",
     "main": "public-api.js",
     "author": {

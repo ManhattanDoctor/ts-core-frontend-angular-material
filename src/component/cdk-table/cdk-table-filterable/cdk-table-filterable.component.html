@@ -2,10 +2,10 @@
     matSort
     class="flex-grow-1 scroll-vertical"
     [trackBy]="source.trackBy"
-    [dataSource]="source.itemsChanged"
+    [dataSource]="source.items()"
     [class.header-hidden]="settings?.isHideHeader"
-    [matSortActive]="sortActive"
-    [matSortDirection]="sortDirection"
+    [matSortActive]="source.sortActive()"
+    [matSortDirection]="source.sortDirection()"
     (matSortChange)="sortEventHandler($event)"
 >
     <ng-container *ngFor="let column of columns; trackBy: columnTrackBy">
@@ -59,7 +59,7 @@
     <p class="p-5 flex-shrink-0 text-center mouse-inactive" [vi-translate]="settings?.noDataId" *matNoDataRow></p>
 </mat-table>
 
-<mat-progress-bar class="flex-shrink-0 border-line transparent" [mode]="source.isLoading ? 'indeterminate' : 'determinate'"></mat-progress-bar>
+<mat-progress-bar class="flex-shrink-0 border-line transparent" [mode]="source.isLoading() ? 'indeterminate' : 'determinate'"></mat-progress-bar>
 
 <div class="paginator-container d-flex align-items-center justify-content-end flex-shrink-0">
     <ng-content></ng-content>

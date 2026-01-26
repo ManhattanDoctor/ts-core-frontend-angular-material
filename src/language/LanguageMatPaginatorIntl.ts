@@ -41,6 +41,7 @@ export class LanguageMatPaginatorIntl extends MatPaginatorIntl implements OnDest
         this.firstPageLabel = this.language.translate('paginator.firstPage');
         this.previousPageLabel = this.language.translate('paginator.previousPage');
         this.itemsPerPageLabel = this.language.translate('paginator.itemsPerPage');
+        this.changes.next();
     }
 
     protected languageRangeLabel = (page: number, pageSize: number, length: number): string => {

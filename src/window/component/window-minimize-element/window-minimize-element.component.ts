@@ -55,7 +55,7 @@ export class WindowMinimizeElementComponent extends WindowElement {
     protected commitWindowProperties(): void {
         super.commitWindowProperties();
         this.window.events.pipe(takeUntil(this.destroyed)).subscribe(event => {
-            if (event === WindowEvent.MINIMIZED_CHANGED) {
+            if (event === WindowEvent.IS_MINIMIZED_CHANGED) {
                 this.commitIconProperties();
             }
         });

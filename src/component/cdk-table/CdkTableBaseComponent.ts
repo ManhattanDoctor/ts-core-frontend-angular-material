@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { DestroyableContainer, FilterableDataSourceMapCollection } from '@ts-core/common';
 import { ICdkTableRow } from './row/ICdkTableRow';
 import { ICdkTableColumn } from './column/ICdkTableColumn';
-import { Sort, SortDirection } from '@angular/material/sort';
+import { Sort } from '@angular/material/sort';
 import { CdkTableDataSource } from './CdkTableDataSource';
 import { merge, takeUntil } from 'rxjs';
 import { MatTable } from '@angular/material/table';
@@ -39,9 +39,6 @@ export abstract class CdkTableBaseComponent<
     @Output()
     public cellClicked: EventEmitter<ICdkTableCellEvent<U>>;
 
-    public sortActive: string;
-    public sortDirection: SortDirection;
-
     // --------------------------------------------------------------------------
     //
     // 	Constructor
@@ -74,11 +71,6 @@ export abstract class CdkTableBaseComponent<
     }
 
     protected commitTableProperties(): void {
-        let sort = CdkTableDataSource.getSort(this.table);
-        if (!_.isNil(sort)) {
-            this.sortActive = sort.active.toString();
-            this.sortDirection = sort.direction;
-        }
         if (!this.table.isDirty) {
             this.table.reload();
         }
@@ -98,9 +90,7 @@ export abstract class CdkTableBaseComponent<
     }
 
     protected commitComponentProperties(): void {
-        if (_.isNil(this.component.dataSource)) {
-            this.component.dataSource = this.source.itemsChanged;
-        }
+        // dataSource is bound via template [dataSource]="source.items()"
     }
 
     protected commitSettingsProperties(): void {
@@ -130,10 +120,8 @@ export abstract class CdkTableBaseComponent<
         if (_.isNil(this.component)) {
             return;
         }
-        // Doesn't work
-        // this.component.renderRows();
         this.component.dataSource = null;
-        this.component.dataSource = this.source.itemsChanged;
+        this.component.dataSource = this.source.items();
     }
 
     public columnTrackBy(index: number, item: ICdkTableColumn<U>): string {
@@ -205,8 +193,8 @@ export abstract class CdkTableBaseComponent<
         }
         this._table = value;
         if (!_.isNil(value)) {
-            this.commitTableProperties();
             this.source.map = value;
+            this.commitTableProperties();
         }
     }
 

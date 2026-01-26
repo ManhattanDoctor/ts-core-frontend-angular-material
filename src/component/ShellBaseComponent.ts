@@ -2,6 +2,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { DestroyableContainer } from '@ts-core/common';
 import { filter, takeUntil } from 'rxjs';
 import { INotificationConfig, NotificationService, NotificationServiceEvent } from '@ts-core/angular';
+import { computed, Signal, signal, WritableSignal } from '@angular/core';
 import * as _ from 'lodash';
 
 export class ShellBaseComponent extends DestroyableContainer {
@@ -11,11 +12,11 @@ export class ShellBaseComponent extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    public isNeedSide: boolean = false;
-    public isHasNotifications: boolean = false;
-
-    public isShowMenu: boolean = true;
-    public isShowNotifications: boolean = false;
+    protected _isNeedSide: WritableSignal<boolean>;
+    protected _isShowMenu: WritableSignal<boolean>;
+    protected _isShowNotifications: WritableSignal<boolean>;
+    protected _notificationItems: WritableSignal<Array<INotificationConfig>>;
+    protected _isHasNotifications: Signal<boolean>;
 
     // --------------------------------------------------------------------------
     //
@@ -28,6 +29,11 @@ export class ShellBaseComponent extends DestroyableContainer {
         public breakpointObserver: BreakpointObserver
     ) {
         super();
+        this._isNeedSide = signal(false);
+        this._isShowMenu = signal(true);
+        this._notificationItems = signal(new Array());
+        this._isHasNotifications = computed(() => !_.isEmpty(this._notificationItems()));
+        this._isShowNotifications = signal(false);
     }
 
     // --------------------------------------------------------------------------
@@ -55,15 +61,15 @@ export class ShellBaseComponent extends DestroyableContainer {
     }
 
     protected isHasNotificationsCheck(): void {
-        this.isHasNotifications = !_.isEmpty(this.notificationItems);
-        if (!this.isHasNotifications) {
-            this.isShowNotifications = false;
+        this._notificationItems.set(this.notifications.closedConfigs);
+        if (!this._isHasNotifications()) {
+            this._isShowNotifications.set(false);
         }
     }
 
     protected isNeedSideCheck(): void {
-        this.isNeedSide = this.breakpointObserver.isMatched(this.sideMediaQueryToCheck);
-        this.isShowMenu = this.isNeedSide;
+        this._isNeedSide.set(this.breakpointObserver.isMatched(this.sideMediaQueryToCheck));
+        this._isShowMenu.set(this._isNeedSide());
     }
 
     // --------------------------------------------------------------------------
@@ -73,13 +79,27 @@ export class ShellBaseComponent extends DestroyableContainer {
     // --------------------------------------------------------------------------
 
     public toggleMenu(): void {
-        if (!this.isNeedSide) {
-            this.isShowMenu = !this.isShowMenu;
+        if (!this._isNeedSide()) {
+            this._isShowMenu.update(value => !value);
         }
     }
 
     public toggleNotifications(): void {
-        this.isShowNotifications = !this.isShowNotifications;
+        this._isShowNotifications.update(value => !value);
+    }
+
+    public destroy(): void {
+        if (this.isDestroyed) {
+            return;
+        }
+        super.destroy();
+
+        // Явная очистка signals для предотвращения утечек памяти
+        this._isNeedSide = null;
+        this._isShowMenu = null;
+        this._isShowNotifications = null;
+        this._notificationItems = null;
+        this._isHasNotifications = null;
     }
 
     // --------------------------------------------------------------------------
@@ -98,7 +118,23 @@ export class ShellBaseComponent extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    public get notificationItems(): Array<INotificationConfig> {
-        return this.notifications.closedConfigs;
+    public get isNeedSide(): Signal<boolean> {
+        return this._isNeedSide;
+    }
+
+    public get isShowMenu(): Signal<boolean> {
+        return this._isShowMenu;
+    }
+
+    public get isShowNotifications(): Signal<boolean> {
+        return this._isShowNotifications;
+    }
+
+    public get notificationItems(): Signal<Array<INotificationConfig>> {
+        return this._notificationItems;
+    }
+
+    public get isHasNotifications(): Signal<boolean> {
+        return this._isHasNotifications;
     }
 }
