@@ -1,7 +1,9 @@
-import { Component, Input, booleanAttribute } from '@angular/core';
+import { Component, Input, WritableSignal, booleanAttribute, signal } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { DestroyableContainer } from '@ts-core/common';
 import { SelectListItems, ISelectListItem } from '@ts-core/angular';
+import { Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 @Component({
@@ -19,10 +21,13 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
     @Input()
     public className: string;
 
-    @Input({ transform: booleanAttribute })
-    public isStretch: boolean = true;
-
     protected _list: SelectListItems<ISelectListItem<T>>;
+    protected _isStretch: boolean = true;
+
+    public isStretchSignal: WritableSignal<boolean>;
+    public selectedIndexSignal: WritableSignal<number>;
+
+    protected listSubscription?: Subscription;
 
     // --------------------------------------------------------------------------
     //
@@ -30,7 +35,24 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    protected commitListProperties(): void {}
+    constructor() {
+        super();
+        this.isStretchSignal = signal(true);
+        this.selectedIndexSignal = signal(null);
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Protected Methods
+    //
+    // --------------------------------------------------------------------------
+
+    protected commitListProperties(): void {
+        this.listSelectedIndexChanged();
+        this.listSubscription = this.list.changed.pipe(takeUntil(this.destroyed)).subscribe(() => this.listSelectedIndexChanged());
+    }
+
+    protected commitIsStretchProperties(): void {}
 
     // --------------------------------------------------------------------------
     //
@@ -57,6 +79,10 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
         this.list.actionItem(item);
     }
 
+    protected listSelectedIndexChanged(): void {
+        this.selectedIndexSignal.set(this.list?.selectedIndex);
+    }
+
     // --------------------------------------------------------------------------
     //
     // 	Public Methods
@@ -70,6 +96,8 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
         super.destroy();
 
         this.list = null;
+        this.isStretchSignal = null;
+        this.selectedIndexSignal = null;
     }
 
     // --------------------------------------------------------------------------
@@ -86,9 +114,27 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
         if (value === this._list) {
             return;
         }
+
+        if (!_.isNil(this.listSubscription)) {
+            this.listSubscription.unsubscribe();
+            this.listSubscription = null;
+        }
         this._list = value;
         if (!_.isNil(value)) {
             this.commitListProperties();
         }
+    }
+
+    public get isStretch(): boolean {
+        return this._isStretch;
+    }
+    @Input({ transform: booleanAttribute })
+    public set isStretch(value: boolean) {
+        if (value === this._isStretch) {
+            return;
+        }
+        this._isStretch = value;
+        this.isStretchSignal?.set(value);
+        this.commitIsStretchProperties();
     }
 }

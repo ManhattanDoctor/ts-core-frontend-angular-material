@@ -45,20 +45,24 @@ export class WindowBaseComponent extends WindowDragable {
     }
 
     protected commitIsBlinkProperties(): void {
+        super.commitIsBlinkProperties();
         ViewUtil.toggleClass(this.container, this.blinkClass, this.isBlink);
     }
 
     protected commitIsDisabledProperties(): void {
+        super.commitIsDisabledProperties();
         ViewUtil.toggleClass(this.container, this.disabledClass, this.isDisabled);
         ViewUtil.toggleClass(this.content.element, this.disabledClass, this.isDisabled);
         ViewUtil.toggleClass(this.content.element.nativeElement.parentElement, this.disabledClass, this.isDisabled);
     }
 
     protected commitIsShakingProperties(): void {
+        super.commitIsShakingProperties();
         ViewUtil.toggleClasses(this.container, this.shakingClass, this.isShaking);
     }
 
     protected commitIsMinimizedProperties(): void {
+        // super.commitIsMinimizedProperties();
         ViewUtil.toggleClass(this.container, this.minimizedClass, this.isMinimized);
         ViewUtil.toggleClass(this.content.element, this.minimizedClass, this.isMinimized);
         ViewUtil.toggleClass(this.content.element.nativeElement.parentElement, this.minimizedClass, this.isMinimized);

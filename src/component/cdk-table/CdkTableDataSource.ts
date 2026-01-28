@@ -8,7 +8,7 @@ import {
 } from '@ts-core/common';
 import { Sort, SortDirection } from '@angular/material/sort';
 import { Subscription, Observable, Subject, map, filter } from 'rxjs';
-import { Signal, signal, WritableSignal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import * as _ from 'lodash';
 
 export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, U> extends DestroyableContainer {
@@ -49,10 +49,11 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
 
     protected _map: M;
     protected _observer: Subject<ObservableData<CdkTableDataSourceEvent, U>>;
-    protected _items: WritableSignal<Array<U>>;
-    protected _isLoading: WritableSignal<boolean>;
-    protected _sortActive: WritableSignal<string>;
-    protected _sortDirection: WritableSignal<SortDirection>;
+
+    public itemsSignal: WritableSignal<Array<U>>;
+    public isLoadingSignal: WritableSignal<boolean>;
+    public sortActiveSignal: WritableSignal<string>;
+    public sortDirectionSignal: WritableSignal<SortDirection>;
 
     protected subscription: Subscription;
 
@@ -64,10 +65,10 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
 
     constructor() {
         super();
-        this._items = signal(null);
-        this._isLoading = signal(false);
-        this._sortActive = signal(null);
-        this._sortDirection = signal(null);
+        this.itemsSignal = signal(null);
+        this.isLoadingSignal = signal(false);
+        this.sortActiveSignal = signal(null);
+        this.sortDirectionSignal = signal(null);
     }
 
     // --------------------------------------------------------------------------
@@ -86,18 +87,18 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
         this.map?.reload();
     }
 
-    protected updateLoading(): void {
-        this._isLoading.set(this.map?.isLoading);
-    }
-
     protected updateData(): void {
-        this._items.set(this.map?.collection || new Array());
+        this.itemsSignal?.set(this.map?.collection?.concat());
     }
 
     protected updateSort(): void {
         let sort = CdkTableDataSource.getSort(this.map);
-        this._sortActive.set(sort?.active);
-        this._sortDirection.set(sort?.direction);
+        this.sortActiveSignal?.set(sort?.active);
+        this.sortDirectionSignal?.set(sort?.direction);
+    }
+
+    protected updateLoading(): void {
+        this.isLoadingSignal?.set(this.map?.isLoading);
     }
 
     // --------------------------------------------------------------------------
@@ -187,10 +188,10 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
             this._observer = null;
         }
         this.map = null;
-        this._items = null;
-        this._isLoading = null;
-        this._sortActive = null;
-        this._sortDirection = null;
+        this.itemsSignal = null;
+        this.isLoadingSignal = null;
+        this.sortActiveSignal = null;
+        this.sortDirectionSignal = null;
     }
 
     // --------------------------------------------------------------------------
@@ -243,22 +244,6 @@ export class CdkTableDataSource<M extends FilterableDataSourceMapCollection<U>, 
             filter(item => item.type === CdkTableDataSourceEvent.ITEM_REPLACED),
             map(item => item.data)
         );
-    }
-
-    public get items(): Signal<Array<U>> {
-        return this._items;
-    }
-
-    public get isLoading(): Signal<boolean> {
-        return this._isLoading;
-    }
-
-    public get sortActive(): Signal<string> {
-        return this._sortActive;
-    }
-
-    public get sortDirection(): Signal<SortDirection> {
-        return this._sortDirection;
     }
 }
 

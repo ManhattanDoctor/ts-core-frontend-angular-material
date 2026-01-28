@@ -96,6 +96,8 @@ const packageBuild = async (): Promise<void> => {
     await run(`npm --prefix ${projectDirectory} run build`)();
     // Copy Styles
     await filesCopy([`${projectDirectory}/src/style/**/*.scss`], `${output}`);
+    // Copy README.MD
+    await filesCopy([`README.MD`], `${output}`);
 };
 
 const packagePublish = async (type: 'patch' | 'minor' | 'major'): Promise<void> => {

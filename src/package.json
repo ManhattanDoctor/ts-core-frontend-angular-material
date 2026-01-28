@@ -1,6 +1,6 @@
 {
     "name": "@ts-core/angular-material",
-    "version": "21.0.2",
+    "version": "21.0.5",
     "description": "TypeScript library providing UI components, pipes, directives and services for Angular Material applications",
     "main": "public-api.js",
     "author": {
@@ -9,7 +9,7 @@
     },
     "license": "ISC",
     "peerDependencies": {
-        "@ts-core/angular": "~21.0.0",
+        "@ts-core/angular": "~21.0.2",
         "@angular/cdk": "^21.0.6",
         "@angular/material": "^21.0.6",
         "@angular/material-moment-adapter": "^21.0.6",

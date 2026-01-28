@@ -1,7 +1,7 @@
 <mat-tab-group
     [ngClass]="className"
-    [mat-stretch-tabs]="isStretch"
-    [selectedIndex]="list?.selectedIndex"
+    [mat-stretch-tabs]="isStretchSignal()"
+    [selectedIndex]="selectedIndexSignal()"
     (selectedIndexChange)="selectedIndexChanged($event)"
     (selectedTabChange)="selectedTabChanged($event)"
 >

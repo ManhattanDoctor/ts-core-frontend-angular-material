@@ -12,9 +12,10 @@ export class ShellBaseComponent extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    protected _isNeedSide: WritableSignal<boolean>;
-    protected _isShowMenu: WritableSignal<boolean>;
-    protected _isShowNotifications: WritableSignal<boolean>;
+    public isNeedSide: WritableSignal<boolean>;
+    public isShowMenu: WritableSignal<boolean>;
+    public isShowNotifications: WritableSignal<boolean>;
+
     protected _notificationItems: WritableSignal<Array<INotificationConfig>>;
     protected _isHasNotifications: Signal<boolean>;
 
@@ -29,11 +30,12 @@ export class ShellBaseComponent extends DestroyableContainer {
         public breakpointObserver: BreakpointObserver
     ) {
         super();
-        this._isNeedSide = signal(false);
-        this._isShowMenu = signal(true);
+        this.isNeedSide = signal(false);
+        this.isShowMenu = signal(true);
+        this.isShowNotifications = signal(false);
+
         this._notificationItems = signal(new Array());
         this._isHasNotifications = computed(() => !_.isEmpty(this._notificationItems()));
-        this._isShowNotifications = signal(false);
     }
 
     // --------------------------------------------------------------------------
@@ -62,14 +64,14 @@ export class ShellBaseComponent extends DestroyableContainer {
 
     protected isHasNotificationsCheck(): void {
         this._notificationItems.set(this.notifications.closedConfigs);
-        if (!this._isHasNotifications()) {
-            this._isShowNotifications.set(false);
+        if (!this.isHasNotifications()) {
+            this.isShowNotifications.set(false);
         }
     }
 
     protected isNeedSideCheck(): void {
-        this._isNeedSide.set(this.breakpointObserver.isMatched(this.sideMediaQueryToCheck));
-        this._isShowMenu.set(this._isNeedSide());
+        this.isNeedSide.set(this.breakpointObserver.isMatched(this.sideMediaQueryToCheck));
+        this.isShowMenu.set(this.isNeedSide());
     }
 
     // --------------------------------------------------------------------------
@@ -79,13 +81,13 @@ export class ShellBaseComponent extends DestroyableContainer {
     // --------------------------------------------------------------------------
 
     public toggleMenu(): void {
-        if (!this._isNeedSide()) {
-            this._isShowMenu.update(value => !value);
+        if (!this.isNeedSide()) {
+            this.isShowMenu.update(value => !value);
         }
     }
 
     public toggleNotifications(): void {
-        this._isShowNotifications.update(value => !value);
+        this.isShowNotifications.update(value => !value);
     }
 
     public destroy(): void {
@@ -94,10 +96,10 @@ export class ShellBaseComponent extends DestroyableContainer {
         }
         super.destroy();
 
-        // Явная очистка signals для предотвращения утечек памяти
-        this._isNeedSide = null;
-        this._isShowMenu = null;
-        this._isShowNotifications = null;
+        this.isNeedSide = null;
+        this.isShowMenu = null;
+        this.isShowNotifications = null;
+
         this._notificationItems = null;
         this._isHasNotifications = null;
     }
@@ -117,18 +119,6 @@ export class ShellBaseComponent extends DestroyableContainer {
     // 	Public Properties
     //
     // --------------------------------------------------------------------------
-
-    public get isNeedSide(): Signal<boolean> {
-        return this._isNeedSide;
-    }
-
-    public get isShowMenu(): Signal<boolean> {
-        return this._isShowMenu;
-    }
-
-    public get isShowNotifications(): Signal<boolean> {
-        return this._isShowNotifications;
-    }
 
     public get notificationItems(): Signal<Array<INotificationConfig>> {
         return this._notificationItems;

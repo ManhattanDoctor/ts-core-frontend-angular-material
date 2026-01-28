@@ -1,6 +1,6 @@
-import { Component, ViewContainerRef } from '@angular/core';
+import { Component, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { LanguageService } from '@ts-core/frontend';
-import { ViewUtil } from '@ts-core/angular';
+import { QuestionManager, ViewUtil } from '@ts-core/angular';
 import { WindowQuestionBaseComponent } from '../WindowQuestionBaseComponent';
 import * as _ from 'lodash';
 
@@ -15,7 +15,7 @@ export class WindowQuestionComponent extends WindowQuestionBaseComponent {
     //
     // --------------------------------------------------------------------------
 
-    public text: string;
+    public textSignal: WritableSignal<string>;
 
     // --------------------------------------------------------------------------
     //
@@ -29,11 +29,13 @@ export class WindowQuestionComponent extends WindowQuestionBaseComponent {
     ) {
         super(container);
         ViewUtil.addClasses(container.element, 'd-block');
+
+        this.textSignal = signal(null);
     }
 
     // --------------------------------------------------------------------------
     //
-    // 	Public Methods
+    // 	Protected Methods
     //
     // --------------------------------------------------------------------------
 
@@ -41,9 +43,8 @@ export class WindowQuestionComponent extends WindowQuestionBaseComponent {
         super.commitConfigProperties();
 
         if (!_.isNil(this.data.text)) {
-            this.text = this.data.text.replace(/(?:\r\n|\r|\n)/g, `<br/>`);
+            this.textSignal.set(this.data.text.replace(/(?:\r\n|\r|\n)/g, `<br/>`));
         }
-
         if (this.language.isHasTranslation(this.data.options.yesTextId)) {
             this.data.yesText = this.language.translate(this.data.options.yesTextId);
         }
@@ -56,5 +57,19 @@ export class WindowQuestionComponent extends WindowQuestionBaseComponent {
         if (this.language.isHasTranslation(this.data.options.closeTextId)) {
             this.data.closeText = this.language.translate(this.data.options.closeTextId);
         }
+    }
+
+    // --------------------------------------------------------------------------
+    //
+    // 	Public Methods
+    //
+    // --------------------------------------------------------------------------
+
+    public destroy(): void {
+        if (this.isDestroyed) {
+            return;
+        }
+        super.destroy();
+        this.textSignal = null;
     }
 }

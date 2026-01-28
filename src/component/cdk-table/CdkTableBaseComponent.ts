@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal, ViewChild, WritableSignal } from '@angular/core';
 import { DestroyableContainer, FilterableDataSourceMapCollection } from '@ts-core/common';
 import { ICdkTableRow } from './row/ICdkTableRow';
 import { ICdkTableColumn } from './column/ICdkTableColumn';
@@ -25,7 +25,6 @@ export abstract class CdkTableBaseComponent<
 
     protected _rows: ICdkTableRow<U>;
     protected _columns: Array<ICdkTableColumn<U>>;
-    protected _columnNames: Array<keyof U>;
 
     protected _source: S;
     protected _selectedRow: U;
@@ -39,6 +38,14 @@ export abstract class CdkTableBaseComponent<
     @Output()
     public cellClicked: EventEmitter<ICdkTableCellEvent<U>>;
 
+    public settingsSignal: WritableSignal<ICdkTableSettings<U>>;
+    public selectedRowSignal: WritableSignal<U>;
+    public selectedRowsSignal: WritableSignal<Array<U>>;
+
+    public rowsSignal: WritableSignal<ICdkTableRow<U>>;
+    public columnsSignal: WritableSignal<Array<ICdkTableColumn<U>>>;
+    public columnNamesSignal: WritableSignal<Array<keyof U>>;
+
     // --------------------------------------------------------------------------
     //
     // 	Constructor
@@ -49,11 +56,18 @@ export abstract class CdkTableBaseComponent<
         super();
 
         this._source = this.createSource();
-        this._columnNames = new Array();
 
         this.settings = {};
         this.rowClicked = new EventEmitter();
         this.cellClicked = new EventEmitter();
+
+        this.columnsSignal = signal(null);
+        this.settingsSignal = signal(this.settings);
+        this.columnNamesSignal = signal(null);
+
+        this.rowsSignal = signal(this.rows);
+        this.selectedRowSignal = signal(this.selectedRow);
+        this.selectedRowsSignal = signal(this.selectedRows);
 
         merge(this.source.itemChanged, this.source.itemReplaced)
             .pipe(takeUntil(this.destroyed))
@@ -80,13 +94,12 @@ export abstract class CdkTableBaseComponent<
         let value = null;
 
         value = !_.isEmpty(this.columns) ? this.columns.map(item => item.name) : [];
-        if (value !== this._columnNames) {
-            this._columnNames = value;
-        }
+        this.columnNamesSignal.set(value);
     }
 
     protected commitSelectedRowsProperties(): void {
         this._selectedRow = !_.isEmpty(this.selectedRows) && this.selectedRows.length === 1 ? this.selectedRows[0] : null;
+        this.selectedRowSignal?.set(this.selectedRow);
     }
 
     protected commitComponentProperties(): void {
@@ -121,7 +134,7 @@ export abstract class CdkTableBaseComponent<
             return;
         }
         this.component.dataSource = null;
-        this.component.dataSource = this.source.items();
+        this.component.dataSource = this.source.itemsSignal();
     }
 
     public columnTrackBy(index: number, item: ICdkTableColumn<U>): string {
@@ -207,6 +220,7 @@ export abstract class CdkTableBaseComponent<
             return;
         }
         this._selectedRows = value;
+        this.selectedRowsSignal?.set(value);
         this.commitSelectedRowsProperties();
     }
 
@@ -230,6 +244,7 @@ export abstract class CdkTableBaseComponent<
             return;
         }
         this._rows = value;
+        this.rowsSignal?.set(value);
         if (!_.isNil(value)) {
             this.commitRowProperties();
         }
@@ -244,6 +259,7 @@ export abstract class CdkTableBaseComponent<
             return;
         }
         this._columns = value;
+        this.columnsSignal?.set(value);
         if (!_.isNil(value)) {
             this.commitColumnsProperties();
         }
@@ -258,6 +274,7 @@ export abstract class CdkTableBaseComponent<
             return;
         }
         this._settings = value;
+        this.settingsSignal?.set(value);
         if (!_.isNil(value)) {
             this.commitSettingsProperties();
         }
@@ -275,10 +292,6 @@ export abstract class CdkTableBaseComponent<
         if (!_.isNil(value)) {
             this.commitComponentProperties();
         }
-    }
-
-    public get columnNames(): Array<keyof U> {
-        return this._columnNames;
     }
 }
 

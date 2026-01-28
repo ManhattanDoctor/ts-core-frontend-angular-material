@@ -4,7 +4,7 @@ import { IWindow, IWindowConfig, IWindowContent, ViewUtil, WindowBase, WindowEve
 import { WindowProperties } from './WindowProperties';
 import { WindowElement } from './component/WindowElement';
 import { ArrayUtil } from '@ts-core/common';
-import { ComponentRef, Signal, signal, WritableSignal } from '@angular/core';
+import { ComponentRef, signal, WritableSignal } from '@angular/core';
 import * as _ from 'lodash';
 
 export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
@@ -28,13 +28,15 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
 
     private _isBlink: boolean = false;
     private _isOnTop: boolean = false;
+    private _isShaking: boolean = false;
     private _isDisabled: boolean = false;
     private _isMinimized: boolean = false;
-    private _isShaking: boolean = false;
 
-    private _onTop: WritableSignal<boolean>;
-    private _disabled: WritableSignal<boolean>;
-    private _minimized: WritableSignal<boolean>;
+    public isBlinkSignal: WritableSignal<boolean>;
+    public isOnTopSignal: WritableSignal<boolean>;
+    public isShakingSignal: WritableSignal<boolean>;
+    public isDisabledSignal: WritableSignal<boolean>;
+    public isMinimizedSignal: WritableSignal<boolean>;
 
     private isOpened: boolean = false;
     private isWasOnTop: boolean = false;
@@ -65,9 +67,11 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             this.content.window = this;
         }
 
-        this._onTop = signal(false);
-        this._disabled = signal(false);
-        this._minimized = signal(false);
+        this.isBlinkSignal = signal(false);
+        this.isOnTopSignal = signal(false);
+        this.isShakingSignal = signal(false);
+        this.isDisabledSignal = signal(false);
+        this.isMinimizedSignal = signal(false);
 
         // Have to save for unsubscribe on destroy
         this._wrapper = this.properties.overlay.hostElement;
@@ -161,23 +165,13 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
 
     protected commitIsBlinkProperties(): void {}
     protected commitIsShakingProperties(): void {}
-    protected commitIsDisabledProperties(): void {
-        if (!_.isNil(this._disabled)) {
-            this._disabled.set(this.isDisabled);
-        }
-    }
+    protected commitIsDisabledProperties(): void {}
 
     protected commitIsOnTopProperties(): void {
         this.isBlink = false;
-        if (!_.isNil(this._onTop)) {
-            this._onTop.set(this.isOnTop);
-        }
     }
     protected commitIsMinimizedProperties(): void {
         this.isBlink = false;
-        if (!_.isNil(this._minimized)) {
-            this._minimized.set(this.isMinimized);
-        }
     }
 
     protected commitSizeProperties(): void {
@@ -290,9 +284,11 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
         this._backdrop = null;
         this._container = null;
 
-        this._onTop = null;
-        this._disabled = null;
-        this._minimized = null;
+        this.isBlinkSignal = null;
+        this.isOnTopSignal = null;
+        this.isShakingSignal = null;
+        this.isDisabledSignal = null;
+        this.isMinimizedSignal = null;
 
         clearTimeout(this.shakeTimer);
         this.shakeTimer = null;
@@ -400,6 +396,7 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             return;
         }
         this._isBlink = value;
+        this.isBlinkSignal?.set(value);
         this.commitIsBlinkProperties();
     }
 
@@ -411,6 +408,7 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             return;
         }
         this._isShaking = value;
+        this.isShakingSignal?.set(value);
         this.commitIsShakingProperties();
     }
 
@@ -444,9 +442,6 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
         return this._backdrop;
     }
 
-    public get onTop(): Signal<boolean> {
-        return this._onTop;
-    }
     public get isOnTop(): boolean {
         return this._isOnTop;
     }
@@ -455,13 +450,11 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             return;
         }
         this._isOnTop = value;
+        this.isOnTopSignal?.set(value);
         this.commitIsOnTopProperties();
         this.emit(WindowEvent.IS_ON_TOP_CHANGED);
     }
 
-    public get minimized(): Signal<boolean> {
-        return this._minimized;
-    }
     public get isMinimized(): boolean {
         return this._isMinimized;
     }
@@ -470,13 +463,11 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             return;
         }
         this._isMinimized = value;
+        this.isMinimizedSignal?.set(value);
         this.commitIsMinimizedProperties();
         this.emit(WindowEvent.IS_MINIMIZED_CHANGED);
     }
 
-    public get disabled(): Signal<boolean> {
-        return this._disabled;
-    }
     public get isDisabled(): boolean {
         return this._isDisabled;
     }
@@ -485,6 +476,7 @@ export class WindowImpl<T = any> extends WindowBase<T> implements IWindow {
             return;
         }
         this._isDisabled = value;
+        this.isDisabledSignal?.set(value);
         this.commitIsDisabledProperties();
         this.emit(WindowEvent.IS_DISABLED_CHANGED);
     }

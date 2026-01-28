@@ -2,13 +2,13 @@
     matSort
     class="flex-grow-1 scroll-vertical"
     [trackBy]="source.trackBy"
-    [dataSource]="source.items()"
-    [class.header-hidden]="settings?.isHideHeader"
-    [matSortActive]="source.sortActive()"
-    [matSortDirection]="source.sortDirection()"
+    [dataSource]="source.itemsSignal()"
+    [class.header-hidden]="settingsSignal()?.isHideHeader"
+    [matSortActive]="source.sortActiveSignal()"
+    [matSortDirection]="source.sortDirectionSignal()"
     (matSortChange)="sortEventHandler($event)"
 >
-    <ng-container *ngFor="let column of columns; trackBy: columnTrackBy">
+    <ng-container *ngFor="let column of columnsSignal(); trackBy: columnTrackBy">
         <ng-container [matColumnDef]="column.name">
             <mat-header-cell
                 class="px-2"
@@ -45,18 +45,18 @@
         </ng-container>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="columnNames"></mat-header-row>
+    <mat-header-row *matHeaderRowDef="columnNamesSignal()"></mat-header-row>
 
     <mat-row
-        *matRowDef="let row; columns: columnNames"
+        *matRowDef="let row; columns: columnNamesSignal()"
         class="mat-list-item"
-        [class.active]="settings?.isInteractive"
-        [ngClass]="row | viCdkTableRowClassName: rows : selectedRows"
-        [ngStyle]="row | viCdkTableRowStyleName: rows : selectedRows"
+        [class.active]="settingsSignal()?.isInteractive"
+        [ngClass]="row | viCdkTableRowClassName: rowsSignal() : selectedRowsSignal()"
+        [ngStyle]="row | viCdkTableRowStyleName: rowsSignal() : selectedRowsSignal()"
         (click)="rowClickHandler(row, $event)"
     ></mat-row>
 
-    <p class="p-5 flex-shrink-0 text-center mouse-disabled" [vi-translate]="settings?.noDataId" *matNoDataRow></p>
+    <p class="p-5 flex-shrink-0 text-center mouse-disabled" [vi-translate]="settingsSignal()?.noDataId" *matNoDataRow></p>
 </mat-table>
 
-<mat-progress-bar class="flex-shrink-0 border-line transparent" [mode]="source.isLoading() ? 'indeterminate' : 'determinate'"></mat-progress-bar>
+<mat-progress-bar class="flex-shrink-0 border-line transparent" [mode]="source.isLoadingSignal() ? 'indeterminate' : 'determinate'"></mat-progress-bar>

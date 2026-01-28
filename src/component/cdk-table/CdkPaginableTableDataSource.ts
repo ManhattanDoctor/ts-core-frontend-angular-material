@@ -9,10 +9,10 @@ export class CdkPaginableTableDataSource<M extends PaginableDataSourceMapCollect
     //
     // --------------------------------------------------------------------------
 
-    protected _total: WritableSignal<number>;
-    protected _pages: WritableSignal<number>;
-    protected _pageSize: WritableSignal<number>;
-    protected _pageIndex: WritableSignal<number>;
+    public totalSignal: WritableSignal<number>;
+    public pagesSignal: WritableSignal<number>;
+    public pageSizeSignal: WritableSignal<number>;
+    public pageIndexSignal: WritableSignal<number>;
 
     // --------------------------------------------------------------------------
     //
@@ -22,10 +22,10 @@ export class CdkPaginableTableDataSource<M extends PaginableDataSourceMapCollect
 
     constructor() {
         super();
-        this._total = signal(0);
-        this._pages = signal(0);
-        this._pageSize = signal(0);
-        this._pageIndex = signal(0);
+        this.totalSignal = signal(0);
+        this.pagesSignal = signal(0);
+        this.pageSizeSignal = signal(0);
+        this.pageIndexSignal = signal(0);
     }
 
     // --------------------------------------------------------------------------
@@ -40,10 +40,10 @@ export class CdkPaginableTableDataSource<M extends PaginableDataSourceMapCollect
 
     protected updateData(): void {
         super.updateData();
-        this._total.set(this.map.total);
-        this._pages.set(this.map.pages);
-        this._pageSize.set(this.map.pageSize);
-        this._pageIndex.set(this.map.pageIndex);
+        this.totalSignal?.set(this.map.total);
+        this.pagesSignal?.set(this.map.pages);
+        this.pageSizeSignal?.set(this.map.pageSize);
+        this.pageIndexSignal?.set(this.map.pageIndex);
     }
 
     public destroy(): void {
@@ -51,31 +51,9 @@ export class CdkPaginableTableDataSource<M extends PaginableDataSourceMapCollect
             return;
         }
         super.destroy();
-        this._total = null;
-        this._pages = null;
-        this._pageSize = null;
-        this._pageIndex = null;
-    }
-
-    // --------------------------------------------------------------------------
-    //
-    // 	Public Properties
-    //
-    // --------------------------------------------------------------------------
-
-    public get total(): Signal<number> {
-        return this._total;
-    }
-
-    public get pages(): Signal<number> {
-        return this._pages;
-    }
-
-    public get pageSize(): Signal<number> {
-        return this._pageSize;
-    }
-
-    public get pageIndex(): Signal<number> {
-        return this._pageIndex;
+        this.totalSignal = null;
+        this.pagesSignal = null;
+        this.pageSizeSignal = null;
+        this.pageIndexSignal = null;
     }
 }

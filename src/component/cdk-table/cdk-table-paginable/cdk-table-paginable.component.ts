@@ -1,5 +1,5 @@
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
-import { Component, Input, ViewContainerRef } from '@angular/core';
+import { Component, Input, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
 import { PageEvent } from '@angular/material/paginator';
 import { PaginableDataSourceMapCollection } from '@ts-core/common';
@@ -23,6 +23,7 @@ export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
     // --------------------------------------------------------------------------
 
     protected _paginator: ICdkTablePaginatorSettings;
+    public paginatorSignal: WritableSignal<ICdkTablePaginatorSettings>;
 
     // --------------------------------------------------------------------------
     //
@@ -34,6 +35,7 @@ export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
         super();
         ViewUtil.addClasses(container, 'd-flex flex-column scroll-no');
         this._paginator = { pageSizes: [10, 25, 100], hidePageSize: false, showFirstLastButtons: true };
+        this.paginatorSignal = signal(this.paginator);
     }
 
     // --------------------------------------------------------------------------
@@ -75,6 +77,7 @@ export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
             return;
         }
         this._paginator = value;
+        this.paginatorSignal?.set(value);
         if (!_.isNil(value)) {
             this.commitPaginatorProperties();
         }

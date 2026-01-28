@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { Injectable } from '@angular/core';
+import { Injectable, Signal, signal, WritableSignal } from '@angular/core';
 import { DestroyableContainer } from '@ts-core/common';
 import { ObservableData } from '@ts-core/common';
 import { merge, Observable, Subject } from 'rxjs';
@@ -20,7 +20,7 @@ export class BootstrapBreakpointService extends DestroyableContainer {
     public static DEFAULT_XL = 1200;
     public static DEFAULT_XXL = 1400;
 
-    protected _breakpoint: BootstrapBreakpoint;
+    protected _breakpoint: WritableSignal<BootstrapBreakpoint>;
     protected items: Array<IBreakpointItem>;
 
     protected observer: Subject<ObservableData<BootstrapBreakpointServiceEvent, BootstrapBreakpoint>>;
@@ -33,6 +33,7 @@ export class BootstrapBreakpointService extends DestroyableContainer {
 
     constructor(protected service: BreakpointObserver) {
         super();
+        this._breakpoint = signal(null);
         this.observer = new Subject();
         this.initialize();
     }
@@ -73,11 +74,11 @@ export class BootstrapBreakpointService extends DestroyableContainer {
     }
 
     protected setBreakpoint(value: BootstrapBreakpoint): void {
-        if (value === this._breakpoint) {
+        if (value === this._breakpoint()) {
             return;
         }
-        this._breakpoint = value;
-        this.observer.next(new ObservableData(BootstrapBreakpointServiceEvent.CHANGED, this.breakpoint));
+        this._breakpoint.set(value);
+        this.observer.next(new ObservableData(BootstrapBreakpointServiceEvent.CHANGED, value));
     }
 
     // --------------------------------------------------------------------------
@@ -87,11 +88,11 @@ export class BootstrapBreakpointService extends DestroyableContainer {
     // --------------------------------------------------------------------------
 
     public isEqual(item: BootstrapBreakpoint): boolean {
-        return item === this.breakpoint;
+        return item === this._breakpoint();
     }
 
     public isUp(item: BootstrapBreakpoint): boolean {
-        return _.findIndex(this.items, { name: this.breakpoint }) < _.findIndex(this.items, { name: item });
+        return _.findIndex(this.items, { name: this._breakpoint() }) < _.findIndex(this.items, { name: item });
     }
 
     public isUpOrEqual(item: BootstrapBreakpoint): boolean {
@@ -99,7 +100,7 @@ export class BootstrapBreakpointService extends DestroyableContainer {
     }
 
     public isDown(item: BootstrapBreakpoint): boolean {
-        return _.findIndex(this.items, { name: this.breakpoint }) > _.findIndex(this.items, { name: item });
+        return _.findIndex(this.items, { name: this._breakpoint() }) > _.findIndex(this.items, { name: item });
     }
 
     public isDownOrEqual(item: BootstrapBreakpoint): boolean {
@@ -112,7 +113,7 @@ export class BootstrapBreakpointService extends DestroyableContainer {
     //
     // --------------------------------------------------------------------------
 
-    public get breakpoint(): BootstrapBreakpoint {
+    public get breakpoint(): Signal<BootstrapBreakpoint> {
         return this._breakpoint;
     }
 

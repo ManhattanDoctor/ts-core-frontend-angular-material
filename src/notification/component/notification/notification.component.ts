@@ -1,4 +1,4 @@
-import { Component, ViewContainerRef } from '@angular/core';
+import { Component, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { LanguageService } from '@ts-core/frontend';
 import { NotificationService, ViewUtil } from '@ts-core/angular';
 import { NotificationQuestionBaseComponent } from '../NotificationQuestionBaseComponent';
@@ -13,6 +13,14 @@ import * as _ from 'lodash';
 export class NotificationComponent extends NotificationQuestionBaseComponent {
     // --------------------------------------------------------------------------
     //
+    // 	Properties
+    //
+    // --------------------------------------------------------------------------
+
+    public textSignal: WritableSignal<string>;
+
+    // --------------------------------------------------------------------------
+    //
     // 	Constructor
     //
     // --------------------------------------------------------------------------
@@ -24,6 +32,8 @@ export class NotificationComponent extends NotificationQuestionBaseComponent {
     ) {
         super(container);
         ViewUtil.addClasses(container.element, 'd-block');
+
+        this.textSignal = signal(null);
     }
 
     // --------------------------------------------------------------------------
@@ -35,6 +45,9 @@ export class NotificationComponent extends NotificationQuestionBaseComponent {
     protected commitConfigProperties(): void {
         super.commitConfigProperties();
 
+        if (!_.isNil(this.data.text)) {
+            this.textSignal.set(this.data.text.replace(/(?:\r\n|\r|\n)/g, `<br/>`));
+        }
         if (this.language.isHasTranslation(this.data.options.yesTextId)) {
             this.data.yesText = this.language.translate(this.data.options.yesTextId);
         }
@@ -60,5 +73,13 @@ export class NotificationComponent extends NotificationQuestionBaseComponent {
         if (_.isNil(this.notification)) {
             this.notifications.remove(this.config);
         }
+    }
+
+    public destroy(): void {
+        if (this.isDestroyed) {
+            return;
+        }
+        super.destroy();
+        this.textSignal = null;
     }
 }
