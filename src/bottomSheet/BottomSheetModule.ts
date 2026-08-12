@@ -9,9 +9,8 @@ import { LanguageService } from '@ts-core/frontend';
 
 let declarations = [];
 @NgModule({
-    imports: [CommonModule, FormsModule, MatBottomSheetModule, MatButtonModule, LanguageModule],
-    exports: declarations,
-    declarations
+    imports: [CommonModule, FormsModule, MatBottomSheetModule, MatButtonModule, LanguageModule, ...declarations],
+    exports: declarations
 })
 export class BottomSheetModule {
     // --------------------------------------------------------------------------

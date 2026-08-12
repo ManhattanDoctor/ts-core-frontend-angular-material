@@ -5,8 +5,7 @@ import * as _ from 'lodash';
 
 @Pipe({
     name: 'viCdkTableCellValue',
-    pure: false,
-    standalone: false
+    pure: false
 })
 export class CdkTableCellValuePipe<U> extends DestroyableContainer implements PipeTransform {
     // --------------------------------------------------------------------------

@@ -1,5 +1,5 @@
-import { ModuleWithProviders, NgModule } from '@angular/core';
-import { BottomSheetService, IVIOptions, VIModule, WindowService } from '@ts-core/angular';
+import { EnvironmentProviders, ModuleWithProviders, NgModule, Provider, makeEnvironmentProviders } from '@angular/core';
+import { BottomSheetService, IVIOptions, VIModule, WindowService, viProviders } from '@ts-core/angular';
 import { BottomSheetModule } from './bottomSheet/BottomSheetModule';
 import { NotificationModule } from './notification/NotificationModule';
 import { WindowModule } from './window/WindowModule';
@@ -78,10 +78,11 @@ let declarations = [
         MatSortModule,
         MatTableModule,
         MatPaginatorModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+
+        ...declarations
     ],
-    exports: [VIModule, WindowModule, BottomSheetModule, NotificationModule, ...declarations],
-    declarations
+    exports: [VIModule, WindowModule, BottomSheetModule, NotificationModule, ...declarations]
 })
 export class VIMatModule {
     // --------------------------------------------------------------------------
@@ -91,26 +92,35 @@ export class VIMatModule {
     // --------------------------------------------------------------------------
 
     public static forRoot(options?: IVIOptions): ModuleWithProviders<VIMatModule> {
-        return {
-            ngModule: VIMatModule,
-            providers: [
-                {
-                    provide: MatPaginatorIntl,
-                    deps: [LanguageService],
-                    useClass: LanguageMatPaginatorIntl
-                },
-                {
-                    provide: PortalService,
-                    deps: [WindowService, BottomSheetService, BootstrapBreakpointService],
-                    useClass: PortalService
-                },
-
-                ...VIModule.forRoot(options).providers,
-
-                ...WindowModule.forRoot().providers,
-                ...BottomSheetModule.forRoot().providers,
-                ...NotificationModule.forRoot().providers
-            ]
-        };
+        return { ngModule: VIMatModule, providers: viMatProviders(options) };
     }
+}
+
+//
+// Настройка для приложения на самостоятельных компонентах: то же, что VIMatModule.forRoot,
+// но без модуля — включает в себя и настройку @ts-core/angular
+//
+export function provideVIMat(options?: IVIOptions): EnvironmentProviders {
+    return makeEnvironmentProviders(viMatProviders(options));
+}
+
+export function viMatProviders(options?: IVIOptions): Array<Provider | EnvironmentProviders> {
+    return [
+        {
+            provide: MatPaginatorIntl,
+            deps: [LanguageService],
+            useClass: LanguageMatPaginatorIntl
+        },
+        {
+            provide: PortalService,
+            deps: [WindowService, BottomSheetService, BootstrapBreakpointService],
+            useClass: PortalService
+        },
+
+        ...viProviders(options),
+
+        ...WindowModule.forRoot().providers,
+        ...BottomSheetModule.forRoot().providers,
+        ...NotificationModule.forRoot().providers
+    ];
 }

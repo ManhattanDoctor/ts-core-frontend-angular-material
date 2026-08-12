@@ -6,8 +6,7 @@ import { VoiceRecognitionService } from '../service/VoiceRecognitionService';
 import * as _ from 'lodash';
 
 @Directive({
-    selector: '[vi-voice-recognition-button]',
-    standalone: false
+    selector: '[vi-voice-recognition-button]'
 })
 export class VoiceRecognitionButtonDirective extends Loadable<void> {
     //--------------------------------------------------------------------------

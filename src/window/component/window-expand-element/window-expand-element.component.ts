@@ -6,8 +6,7 @@ import * as _ from 'lodash';
 @Component({
     selector: 'vi-window-expand-element',
     styleUrl: 'window-expand-element.component.scss',
-    template: '',
-    standalone: false
+    template: ''
 })
 export class WindowExpandElementComponent extends WindowElement {
     // --------------------------------------------------------------------------

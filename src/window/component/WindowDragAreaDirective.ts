@@ -7,8 +7,7 @@ import * as interact from 'interactjs';
 import * as _ from 'lodash';
 
 @Directive({
-    selector: '[vi-window-drag-area]',
-    standalone: false
+    selector: '[vi-window-drag-area]'
 })
 export class WindowDragAreaDirective extends Destroyable {
     // --------------------------------------------------------------------------

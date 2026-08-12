@@ -1,3 +1,6 @@
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 import { Component, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { LanguageService } from '@ts-core/frontend';
 import { NotificationService, ViewUtil } from '@ts-core/angular';
@@ -5,10 +8,10 @@ import { NotificationQuestionBaseComponent } from '../NotificationQuestionBaseCo
 import * as _ from 'lodash';
 
 @Component({
+    imports: [CommonModule, MatButtonModule, MatDialogModule],
     selector: 'vi-notification',
     styleUrl: 'notification.component.scss',
-    templateUrl: 'notification.component.html',
-    standalone: false
+    templateUrl: 'notification.component.html'
 })
 export class NotificationComponent extends NotificationQuestionBaseComponent {
     // --------------------------------------------------------------------------

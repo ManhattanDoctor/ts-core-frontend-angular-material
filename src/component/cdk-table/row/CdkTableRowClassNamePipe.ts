@@ -3,8 +3,7 @@ import { ICdkTableRow } from './ICdkTableRow';
 import * as _ from 'lodash';
 
 @Pipe({
-    name: 'viCdkTableRowClassName',
-    standalone: false
+    name: 'viCdkTableRowClassName'
 })
 export class CdkTableRowClassNamePipe implements PipeTransform {
     // --------------------------------------------------------------------------

@@ -9,7 +9,9 @@ export class LanguageMomentDateAdapter extends MomentDateAdapter {
     // --------------------------------------------------------------------------
 
     constructor(language: LanguageService) {
-        super(language.locale);
+        // В двадцать второй версии адаптер берёт локаль из внедрения, поэтому её ставим явно
+        super();
+        this.setLocale(language.locale);
         language.completed.subscribe(() => this.setLocale(language.locale));
     }
 }

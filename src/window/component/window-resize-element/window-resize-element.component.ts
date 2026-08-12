@@ -6,8 +6,7 @@ import * as _ from 'lodash';
 @Component({
     selector: 'vi-window-resize-element',
     styleUrl: 'window-resize-element.component.scss',
-    template: '',
-    standalone: false
+    template: ''
 })
 export class WindowResizeElementComponent extends WindowElement {
     // --------------------------------------------------------------------------

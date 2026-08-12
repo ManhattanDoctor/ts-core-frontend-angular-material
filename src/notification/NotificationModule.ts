@@ -10,9 +10,8 @@ import { NotificationServiceImpl } from './NotificationServiceImpl';
 
 let declarations = [NotificationComponent];
 @NgModule({
-    imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, LanguageModule],
-    exports: declarations,
-    declarations
+    imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, LanguageModule, ...declarations],
+    exports: declarations
 })
 export class NotificationModule {
     // --------------------------------------------------------------------------

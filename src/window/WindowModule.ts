@@ -23,9 +23,8 @@ let declarations = [
     WindowMinimizeElementComponent
 ];
 @NgModule({
-    imports: [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule, BottomSheetModule],
-    exports: declarations,
-    declarations
+    imports: [CommonModule, FormsModule, MatButtonModule, MatDialogModule, CookieModule, LanguageModule, BottomSheetModule, ...declarations],
+    exports: declarations
 })
 export class WindowModule {
     // --------------------------------------------------------------------------

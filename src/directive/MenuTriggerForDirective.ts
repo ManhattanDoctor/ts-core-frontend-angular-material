@@ -4,8 +4,7 @@ import { Directive, Input } from '@angular/core';
 import * as _ from 'lodash';
 
 @Directive({
-    selector: '[vi-menu-trigger-for]',
-    standalone: false
+    selector: '[vi-menu-trigger-for]'
 })
 export class MenuTriggerForDirective extends MatMenuTrigger {
     //--------------------------------------------------------------------------

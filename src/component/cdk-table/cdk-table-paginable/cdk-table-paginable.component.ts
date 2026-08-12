@@ -1,3 +1,17 @@
+import { HTMLContentTitleDirective, LanguageModule } from '@ts-core/angular';
+import { CdkTableRowStyleNamePipe } from '../row/CdkTableRowStyleNamePipe';
+import { CdkTableRowClassNamePipe } from '../row/CdkTableRowClassNamePipe';
+import { CdkTableColumnStyleNamePipe } from '../column/CdkTableColumnStyleNamePipe';
+import { CdkTableColumnClassNamePipe } from '../column/CdkTableColumnClassNamePipe';
+import { CdkTableCellStyleNamePipe } from '../cell/CdkTableCellStyleNamePipe';
+import { CdkTableCellClassNamePipe } from '../cell/CdkTableCellClassNamePipe';
+import { CdkTableCellValuePipePure } from '../cell/CdkTableCellValuePipePure';
+import { CdkTableCellValuePipe } from '../cell/CdkTableCellValuePipe';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { CommonModule } from '@angular/common';
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
 import { Component, Input, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
@@ -7,9 +21,9 @@ import { CdkPaginableTableDataSource } from '../CdkPaginableTableDataSource';
 import * as _ from 'lodash';
 
 @Component({
+    imports: [CommonModule, MatTableModule, MatSortModule, MatPaginatorModule, MatProgressBarModule, LanguageModule, HTMLContentTitleDirective, CdkTableCellValuePipe, CdkTableCellValuePipePure, CdkTableCellClassNamePipe, CdkTableCellStyleNamePipe, CdkTableColumnClassNamePipe, CdkTableColumnStyleNamePipe, CdkTableRowClassNamePipe, CdkTableRowStyleNamePipe],
     selector: 'vi-cdk-table-paginable',
-    templateUrl: 'cdk-table-paginable.component.html',
-    standalone: false
+    templateUrl: 'cdk-table-paginable.component.html'
 })
 export class CdkTablePaginableComponent<U> extends CdkTableBaseComponent<
     PaginableDataSourceMapCollection<U>,
