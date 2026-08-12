@@ -10,7 +10,6 @@ import { CdkTableCellValuePipe } from '../cell/CdkTableCellValuePipe';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { CommonModule } from '@angular/common';
 import { CdkTableBaseComponent } from '../CdkTableBaseComponent';
 import { Component, ViewContainerRef } from '@angular/core';
 import { ViewUtil } from '@ts-core/angular';
@@ -18,7 +17,7 @@ import { FilterableDataSourceMapCollection } from '@ts-core/common';
 import * as _ from 'lodash';
 
 @Component({
-    imports: [CommonModule, MatTableModule, MatSortModule, MatProgressBarModule, LanguageModule, HTMLContentTitleDirective, CdkTableCellValuePipe, CdkTableCellValuePipePure, CdkTableCellClassNamePipe, CdkTableCellStyleNamePipe, CdkTableColumnClassNamePipe, CdkTableColumnStyleNamePipe, CdkTableRowClassNamePipe, CdkTableRowStyleNamePipe],
+    imports: [MatTableModule, MatSortModule, MatProgressBarModule, LanguageModule, HTMLContentTitleDirective, CdkTableCellValuePipe, CdkTableCellValuePipePure, CdkTableCellClassNamePipe, CdkTableCellStyleNamePipe, CdkTableColumnClassNamePipe, CdkTableColumnStyleNamePipe, CdkTableRowClassNamePipe, CdkTableRowStyleNamePipe],
     selector: 'vi-cdk-table-paginable-bookmark',
     templateUrl: 'cdk-table-paginable-bookmark.component.html'
 })

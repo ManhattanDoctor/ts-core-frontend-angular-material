@@ -1,5 +1,4 @@
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
 import { Component, signal, ViewContainerRef, WritableSignal } from '@angular/core';
 import { LanguageService } from '@ts-core/frontend';
 import { QuestionManager, ViewUtil } from '@ts-core/angular';
@@ -7,7 +6,7 @@ import { WindowQuestionBaseComponent } from '../WindowQuestionBaseComponent';
 import * as _ from 'lodash';
 
 @Component({
-    imports: [CommonModule, MatButtonModule],
+    imports: [MatButtonModule],
     templateUrl: 'window-question.component.html'
 })
 export class WindowQuestionComponent extends WindowQuestionBaseComponent {

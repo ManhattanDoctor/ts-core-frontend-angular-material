@@ -1,15 +1,11 @@
 <mat-tab-group
-    [ngClass]="className"
+    [class]="className"
     [mat-stretch-tabs]="isStretchSignal()"
     [selectedIndex]="selectedIndexSignal()"
     (selectedIndexChange)="selectedIndexChanged($event)"
     (selectedTabChange)="selectedTabChanged($event)"
 >
-    <mat-tab
-        [ngClass]="item.className"
-        [label]="item.label"
-        [disabled]="!item.isEnabled"
-        (click)="list?.actionItem(item)"
-        *ngFor="let item of list?.collection; trackBy: list?.trackBy"
-    ></mat-tab>
+    @for (item of list?.collection; track item.uid) {
+        <mat-tab [class]="item.className" [label]="item.label" [disabled]="!item.isEnabled" (click)="list?.actionItem(item)"></mat-tab>
+    }
 </mat-tab-group>

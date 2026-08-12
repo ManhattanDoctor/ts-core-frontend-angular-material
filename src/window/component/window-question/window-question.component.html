@@ -1,17 +1,19 @@
 <p class="text m-4 text-center mouse-disabled text-word-wrap-break-word" [innerHTML]="textSignal()"></p>
 
 <div class="text-center border-top variant p-3">
+    @if (data?.isInfo) {
+        <button (click)="data?.closeClickHandler()" mat-stroked-button>
+            <span [innerHTML]="data?.closeText"></span>
+        </button>
+    }
 
-    <button (click)="data?.closeClickHandler()" mat-stroked-button *ngIf="data?.isInfo">
-        <span [innerHTML]="data?.closeText"></span>
-    </button>
+    @if (data?.isQuestion) {
+        <button class="mr-3 me-3" (click)="data?.yesClickHandler()" color="primary" mat-stroked-button>
+            <span [innerHTML]="data?.yesText"></span>
+        </button>
 
-    <button class="mr-3 me-3" (click)="data?.yesClickHandler()" color="primary" mat-stroked-button *ngIf="data?.isQuestion">
-        <span [innerHTML]="data?.yesText"></span>
-    </button>
-
-    <button (click)="data?.notClickHandler()" mat-stroked-button *ngIf="data?.isQuestion">
-        <span [innerHTML]="data?.notText"></span>
-    </button>
-
+        <button (click)="data?.notClickHandler()" mat-stroked-button>
+            <span [innerHTML]="data?.notText"></span>
+        </button>
+    }
 </div>

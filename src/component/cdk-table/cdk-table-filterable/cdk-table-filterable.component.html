@@ -8,14 +8,14 @@
     [matSortDirection]="source.sortDirectionSignal()"
     (matSortChange)="sortEventHandler($event)"
 >
-    <ng-container *ngFor="let column of columnsSignal(); trackBy: columnTrackBy">
+    @for (column of columnsSignal(); track column.name) {
         <ng-container [matColumnDef]="column.name">
             <mat-header-cell
                 class="px-2"
                 mat-sort-header
                 [disableClear]="true"
                 [disabled]="column.isDisableSort"
-                [ngClass]="column.headerClassName"
+                [class]="column.headerClassName"
                 *matHeaderCellDef
             >
                 <span [innerHTML]="column.headerId | viTranslate"></span>
@@ -24,26 +24,25 @@
                 *matCellDef="let row"
                 (click)="cellClickHandler(row, column, $event)"
                 class="p-2"
-                [ngClass]="row | viCdkTableColumnClassName : column"
-                [ngStyle]="row | viCdkTableColumnStyleName : column"
+                [class]="row | viCdkTableColumnClassName : column"
+                [style]="row | viCdkTableColumnStyleName : column"
             >
-                <ng-container [ngSwitch]="column.isImage">
+                @if (column.isImage) {
                     <img
-                        *ngSwitchCase="true"
-                        [ngClass]="row | viCdkTableCellClassName : column"
-                        [ngStyle]="row | viCdkTableCellStyleName : column"
+                        [class]="row | viCdkTableCellClassName : column"
+                        [style]="row | viCdkTableCellStyleName : column"
                         [src]="column.isAsync ? (row | viCdkTableCellValue : column) : (row | viCdkTableCellValuePure : column)"
                     />
+                } @else {
                     <span
-                        *ngSwitchDefault
-                        [ngClass]="row | viCdkTableCellClassName : column"
-                        [ngStyle]="row | viCdkTableCellStyleName : column"
+                        [class]="row | viCdkTableCellClassName : column"
+                        [style]="row | viCdkTableCellStyleName : column"
                         [vi-html-content-title]="column.isAsync ? (row | viCdkTableCellValue : column) : (row | viCdkTableCellValuePure : column)"
                     ></span>
-                </ng-container>
+                }
             </mat-cell>
         </ng-container>
-    </ng-container>
+    }
 
     <mat-header-row *matHeaderRowDef="columnNamesSignal()"></mat-header-row>
 
@@ -51,8 +50,8 @@
         *matRowDef="let row; columns: columnNamesSignal()"
         class="mat-list-item"
         [class.active]="settingsSignal()?.isInteractive"
-        [ngClass]="row | viCdkTableRowClassName : rowsSignal() : selectedRowsSignal()"
-        [ngStyle]="row | viCdkTableRowStyleName : rowsSignal() : selectedRowsSignal()"
+        [class]="row | viCdkTableRowClassName : rowsSignal() : selectedRowsSignal()"
+        [style]="row | viCdkTableRowStyleName : rowsSignal() : selectedRowsSignal()"
         (click)="rowClickHandler(row, $event)"
     ></mat-row>
 

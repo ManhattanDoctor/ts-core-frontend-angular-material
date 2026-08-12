@@ -1,7 +1,10 @@
-<ng-container *ngFor="let item of list?.filtered; trackBy: list?.trackBy">
-    <button mat-menu-item [ngClass]="item.className" (click)="list?.actionItem(item)">
-        <mat-icon [fontIcon]="item.iconId" *ngIf="isMaterialIcon"></mat-icon>
-        <span [ngClass]="item.iconId" *ngIf="!isMaterialIcon"></span>
+@for (item of list?.filtered; track item.uid) {
+    <button mat-menu-item [class]="item.className" (click)="list?.actionItem(item)">
+        @if (isMaterialIcon) {
+            <mat-icon [fontIcon]="item.iconId"></mat-icon>
+        } @else {
+            <span [class]="item.iconId"></span>
+        }
         <span [innerHTML]="item.label" [title]="item.label"></span>
     </button>
-</ng-container>
+}

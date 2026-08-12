@@ -1,5 +1,4 @@
 import { MatTabsModule } from '@angular/material/tabs';
-import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, Input, WritableSignal, booleanAttribute, inject, signal } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { DestroyableContainer } from '@ts-core/common';
@@ -10,7 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 @Component({
-    imports: [CommonModule, MatTabsModule],
+    imports: [MatTabsModule],
     selector: 'vi-tab-group',
     templateUrl: 'tab-group.component.html'
 })
