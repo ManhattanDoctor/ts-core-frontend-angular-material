@@ -1,21 +1,53 @@
 # @ts-core/angular-material
 
-Angular Material библиотека с компонентами пользовательского интерфейса. Расширяет `@ts-core/angular` реализациями на базе Angular Material для окон, уведомлений, таблиц, нижних листов и других UI-элементов.
+> Реализация окон, уведомлений, нижних листов и таблиц экосистемы ts-core на Angular Material
+
+[![npm version](https://img.shields.io/npm/v/@ts-core/angular-material.svg)](https://www.npmjs.com/package/@ts-core/angular-material)
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+Пакет закрывает абстракции [`@ts-core/angular`](https://www.npmjs.com/package/@ts-core/angular) реализациями на Angular Material: `WindowService` открывает перетаскиваемые окна, `NotificationService` показывает всплывающие сообщения, `BottomSheetService` — нижние листы. Сверх этого поставляются таблицы с постраничным выводом, вкладки, меню и примеси Sass.
+
+Прикладной код при этом остаётся независимым от Material: он работает с `WindowService`, а какой именно диалог откроется — решает подключённая реализация.
 
 ## Содержание
 
+- [Описание](#описание)
+  - [Основные возможности](#основные-возможности)
 - [Установка](#установка)
-- [Зависимости](#зависимости)
+  - [Зависимости](#зависимости)
+  - [Стили](#стили)
 - [Быстрый старт](#быстрый-старт)
-- [Модули](#модули)
-- [Окна (Windows)](#окна-windows)
-- [Уведомления (Notifications)](#уведомления-notifications)
-- [Нижние листы (Bottom Sheets)](#нижние-листы-bottom-sheets)
-- [CDK-таблицы](#cdk-таблицы)
-- [Директивы](#директивы)
-- [Сервисы](#сервисы)
-- [Примеры использования](#примеры-использования)
-- [Связанные пакеты](#связанные-пакеты)
+- [Настройка приложения](#настройка-приложения)
+- [Окна](#окна)
+  - [Своё содержимое](#своё-содержимое)
+  - [Вопросы и сообщения](#вопросы-и-сообщения)
+  - [Элементы управления окном](#элементы-управления-окном)
+- [Уведомления](#уведомления)
+- [Нижние листы](#нижние-листы)
+- [Портал](#портал)
+- [Таблицы](#таблицы)
+  - [Источник данных](#источник-данных)
+  - [Настройки колонок](#настройки-колонок)
+  - [Постраничный вывод или лента](#постраничный-вывод-или-лента)
+- [Вкладки и меню](#вкладки-и-меню)
+- [Переводы Material](#переводы-material)
+- [Компоненты и директивы](#компоненты-и-директивы)
+- [Структура проекта](#структура-проекта)
+- [История изменений](#история-изменений)
+- [Лицензия](#лицензия)
+
+## Описание
+
+### Основные возможности
+
+- **Окна** — немодальные, перетаскиваемые, с изменением размера, сворачиванием и восстановлением позиции
+- **Уведомления** — всплывающие сообщения и вопросы с автозакрытием по таймеру
+- **Нижние листы** — то же содержимое, что и в окне, но снизу экрана
+- **Портал** — выбирает окно или нижний лист по ширине экрана
+- **Таблицы** — постраничные, фильтруемые и с закладками, поверх `CdkTable` с сортировкой и подсветкой строк
+- **Вкладки и меню** — `vi-tab-group` и `vi-menu-list` поверх коллекций `ListItems`
+- **Переводы Material** — подписи пагинатора и локаль выбора даты берутся из `LanguageService`
+- **Примеси Sass** — границы, уровни, контейнеры и вспомогательные функции цвета и типографики
 
 ## Установка
 
@@ -23,1032 +55,367 @@ Angular Material библиотека с компонентами пользов
 npm install @ts-core/angular-material
 ```
 
-```bash
-yarn add @ts-core/angular-material
+### Зависимости
+
+```json
+{
+    "@ts-core/angular": "~22.0.1",
+    "@angular/cdk": "^22.1.1",
+    "@angular/material": "^22.1.1",
+    "@angular/material-moment-adapter": "^22.1.1",
+    "bootstrap": "^5.3.8",
+    "csshake": "^1.7.0"
+}
 ```
 
-```bash
-pnpm add @ts-core/angular-material
+Требования к полифиллам и настройке сборки описаны в [`@ts-core/angular`](https://www.npmjs.com/package/@ts-core/angular) — они относятся ко всей цепочке пакетов.
+
+### Стили
+
+```scss
+// styles.scss
+@use '@angular/material' as mat;
+@use '@ts-core/angular' as vi;
+@use '@ts-core/angular-material' as vi-mat;
+
+html {
+    @include mat.theme((color: (primary: mat.$violet-palette, theme-type: light), typography: Roboto, density: 0));
+}
+
+@include vi-mat.core();
+
+html,
+body {
+    // окна выравниваются по высоте страницы, поэтому она должна совпадать с экраном
+    height: 100%;
+}
 ```
 
-## Зависимости
+```json
+// angular.json → architect.build.options
+{
+    "stylePreprocessorOptions": { "includePaths": ["./node_modules"] }
+}
+```
 
-| Пакет | Описание |
-|-------|----------|
-| `@angular/core` | Angular фреймворк |
-| `@angular/material` | Angular Material компоненты |
-| `@angular/cdk` | Angular Component Dev Kit |
-| `@ts-core/angular` | Базовые Angular утилиты |
-| `@ts-core/common` | Базовые классы и интерфейсы |
-| `@ts-core/frontend` | Фронтенд утилиты |
-| `bootstrap` | Bootstrap стили (для breakpoints) |
+Без `height: 100%` у `html` и `body` окна Material центрируются относительно всей высоты документа и уезжают за пределы экрана.
 
 ## Быстрый старт
 
-### Подключение модуля
+```ts
+// app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideVIMat } from '@ts-core/angular-material';
+import { LoggerLevel } from '@ts-core/common';
 
-```typescript
-import { NgModule } from '@angular/core';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { VIMatModule } from '@ts-core/angular-material';
-
-@NgModule({
-    imports: [
-        BrowserAnimationsModule,
-        VIMatModule.forRoot({
-            loggerLevel: LoggerLevel.ALL,
-            languageOptions: {
-                defaultLocale: 'ru',
-                supportedLocales: ['ru', 'en']
-            }
-        })
-    ]
-})
-export class AppModule {}
-```
-
-### Для standalone компонентов
-
-```typescript
-import { Component } from '@angular/core';
-import { VIMatModule } from '@ts-core/angular-material';
-
-@Component({
-    standalone: true,
-    imports: [VIMatModule]
-})
-export class MyComponent {}
-```
-
-## Модули
-
-### VIMatModule (главный модуль)
-
-Объединяет все подмодули и экспортирует VIModule:
-
-```typescript
-import { VIMatModule } from '@ts-core/angular-material';
-import { IVIOptions } from '@ts-core/angular';
-
-@NgModule({
-    imports: [VIMatModule.forRoot(options)]
-})
-export class AppModule {}
-```
-
-### WindowModule
-
-Модуль окон на базе MatDialog:
-
-```typescript
-import { WindowModule } from '@ts-core/angular-material';
-
-@NgModule({
-    imports: [WindowModule.forRoot()]
-})
-export class AppModule {}
-```
-
-### NotificationModule
-
-Модуль уведомлений:
-
-```typescript
-import { NotificationModule } from '@ts-core/angular-material';
-
-@NgModule({
-    imports: [NotificationModule.forRoot()]
-})
-export class AppModule {}
-```
-
-### BottomSheetModule
-
-Модуль нижних листов на базе MatBottomSheet:
-
-```typescript
-import { BottomSheetModule } from '@ts-core/angular-material';
-
-@NgModule({
-    imports: [BottomSheetModule.forRoot()]
-})
-export class AppModule {}
-```
-
-## Окна (Windows)
-
-### WindowServiceImpl
-
-Реализация WindowService на базе MatDialog:
-
-```typescript
-import { WindowService } from '@ts-core/angular';
-
-@Component({...})
-export class MyComponent {
-    constructor(private windowService: WindowService) {}
-
-    openDialog(): void {
-        const content = this.windowService.open(MyDialogComponent, {
-            data: { title: 'Заголовок', message: 'Сообщение' },
-            width: '500px',
-            disableClose: true
-        });
-
-        content.events.subscribe(event => {
-            console.log('Dialog event:', event);
-        });
-    }
-
-    showQuestion(): void {
-        const question = this.windowService.question('confirm.delete', {
-            name: 'Документ'
-        });
-
-        question.yesClick.subscribe(() => {
-            this.deleteDocument();
-        });
-    }
-
-    showInfo(): void {
-        this.windowService.info('success.saved');
-    }
-}
-```
-
-### WindowBaseComponent
-
-Базовый класс для содержимого окна:
-
-```typescript
-import { Component } from '@angular/core';
-import { WindowBaseComponent } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-my-dialog',
-    template: `
-        <h2 mat-dialog-title>{{ config.data.title }}</h2>
-        <mat-dialog-content>
-            <p>{{ config.data.message }}</p>
-        </mat-dialog-content>
-        <mat-dialog-actions>
-            <button mat-button (click)="close()">Закрыть</button>
-            <button mat-raised-button color="primary" (click)="save()">Сохранить</button>
-        </mat-dialog-actions>
-    `
-})
-export class MyDialogComponent extends WindowBaseComponent<MyDialogData> {
-    save(): void {
-        this.config.data.result = 'saved';
-        this.close();
-    }
-
-    close(): void {
-        this.destroy();
-    }
-}
-
-interface MyDialogData {
-    title: string;
-    message: string;
-    result?: string;
-}
-```
-
-### WindowQuestionBaseComponent
-
-Базовый класс для окна подтверждения:
-
-```typescript
-import { Component } from '@angular/core';
-import { WindowQuestionBaseComponent } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-confirm-dialog',
-    template: `
-        <h2 mat-dialog-title>Подтверждение</h2>
-        <mat-dialog-content>
-            <p>{{ question.text }}</p>
-        </mat-dialog-content>
-        <mat-dialog-actions align="end">
-            <button mat-button (click)="no()">{{ question.noText }}</button>
-            <button mat-raised-button color="primary" (click)="yes()">{{ question.yesText }}</button>
-        </mat-dialog-actions>
-    `
-})
-export class ConfirmDialogComponent extends WindowQuestionBaseComponent {}
-```
-
-### Конфигурация окна
-
-```typescript
-import { WindowProperties } from '@ts-core/angular-material';
-
-const windowConfig = {
-    data: { title: 'Заголовок' },
-    width: '600px',
-    height: 'auto',
-    maxWidth: '90vw',
-    maxHeight: '90vh',
-    disableClose: false,
-    panelClass: 'my-dialog-panel',
-    hasBackdrop: true,
-    backdropClass: 'my-backdrop'
+export const appConfig: ApplicationConfig = {
+    providers: [provideVIMat({ loggerLevel: LoggerLevel.LOG })]
 };
 ```
 
-### Перетаскиваемые и изменяемые окна
+`provideVIMat` включает в себя `provideVI`, поэтому отдельно настраивать `@ts-core/angular` не нужно.
 
-```typescript
-import { Component } from '@angular/core';
-import { WindowDragable, WindowResizeable } from '@ts-core/angular-material';
+```ts
+import { Component, inject } from '@angular/core';
+import { WindowService, WindowConfig } from '@ts-core/angular';
 
-@Component({
-    selector: 'app-draggable-dialog',
-    template: `
-        <div viWindowDragArea class="header">
-            <h2>Перетаскиваемое окно</h2>
-            <vi-window-close-element></vi-window-close-element>
-        </div>
-        <div class="content">
-            Содержимое окна
-        </div>
-        <vi-window-resize-element></vi-window-resize-element>
-    `
-})
-export class DraggableDialogComponent extends WindowDragable implements WindowResizeable {
-    // Реализация интерфейсов для drag и resize
-}
-```
+@Component({ selector: 'app-root', template: `<button (click)="open()">Открыть</button>` })
+export class App {
+    private windows = inject(WindowService);
 
-## Уведомления (Notifications)
-
-### NotificationServiceImpl
-
-Реализация сервиса уведомлений:
-
-```typescript
-import { NotificationService } from '@ts-core/angular';
-
-@Component({...})
-export class MyComponent {
-    constructor(private notifications: NotificationService) {}
-
-    showSuccess(): void {
-        this.notifications.show({
-            message: 'Данные сохранены',
-            type: 'success',
-            duration: 3000
-        });
-    }
-
-    showError(): void {
-        this.notifications.show({
-            message: 'Произошла ошибка',
-            type: 'error',
-            duration: 5000
-        });
-    }
-
-    showWarning(): void {
-        this.notifications.show({
-            message: 'Внимание!',
-            type: 'warning',
-            duration: 4000
-        });
+    public async open(): Promise<void> {
+        await this.windows.question('common.confirmation').yesNotPromise;
     }
 }
 ```
 
-### NotificationBaseComponent
+## Настройка приложения
 
-Базовый класс для компонента уведомления:
+| Функция | Назначение |
+|---|---|
+| `provideVIMat(options)` | все провайдеры пакета вместе с `provideVI` |
+| `viMatProviders(options)` | тот же список без обёртки — когда нужно что-то переопределить |
+| `VIMatModule.forRoot(options)` | вариант для приложений на `NgModule` |
 
-```typescript
-import { Component } from '@angular/core';
-import { NotificationBaseComponent } from '@ts-core/angular-material';
+Регистрируются `WindowService`, `NotificationService`, `BottomSheetService`, `PortalService`, а также `MatPaginatorIntl` с переводами.
 
+## Окна
+
+### Своё содержимое
+
+Содержимое окна — обычный самостоятельный компонент, наследующий `IWindowContent`:
+
+```ts
 @Component({
-    selector: 'app-notification',
+    selector: 'user-edit',
+    imports: [FormsModule, MatButtonModule, MatDialogModule, VIMatModule],
     template: `
-        <div class="notification" [class]="notification.type">
-            <span class="message">{{ notification.message }}</span>
-            <button mat-icon-button (click)="close()">
-                <mat-icon>close</mat-icon>
-            </button>
-        </div>
-    `,
-    styles: [`
-        .notification { display: flex; align-items: center; padding: 16px; }
-        .success { background: #4caf50; color: white; }
-        .error { background: #f44336; color: white; }
-        .warning { background: #ff9800; color: white; }
-    `]
-})
-export class NotificationComponent extends NotificationBaseComponent {}
-```
-
-### NotificationQuestionBaseComponent
-
-Уведомление с вопросом:
-
-```typescript
-import { Component } from '@angular/core';
-import { NotificationQuestionBaseComponent } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-notification-question',
-    template: `
-        <div class="notification-question">
-            <span>{{ question.text }}</span>
-            <div class="actions">
-                <button mat-button (click)="no()">{{ question.noText }}</button>
-                <button mat-raised-button (click)="yes()">{{ question.yesText }}</button>
-            </div>
+        <div class="p-3" [vi-window-drag-area]="windowSignal()">
+            <h2>{{ title }}</h2>
+            <button mat-flat-button (click)="submit()">Применить</button>
+            <button mat-stroked-button (click)="close()">Закрыть</button>
         </div>
     `
 })
-export class NotificationQuestionComponent extends NotificationQuestionBaseComponent {}
-```
+export class UserEditComponent extends IWindowContent {
+    public static EVENT_SUBMITTED = 'EVENT_SUBMITTED';
 
-## Нижние листы (Bottom Sheets)
+    constructor(container: ViewContainerRef) {
+        super(container);
+        ViewUtil.addClasses(container.element, 'd-block');
+    }
 
-### BottomSheetServiceImpl
-
-Реализация сервиса нижних листов:
-
-```typescript
-import { BottomSheetService } from '@ts-core/angular';
-
-@Component({...})
-export class MyComponent {
-    constructor(private bottomSheet: BottomSheetService) {}
-
-    openActions(): void {
-        this.bottomSheet.open(ActionsSheetComponent, {
-            data: {
-                actions: [
-                    { icon: 'edit', label: 'Редактировать', value: 'edit' },
-                    { icon: 'delete', label: 'Удалить', value: 'delete' },
-                    { icon: 'share', label: 'Поделиться', value: 'share' }
-                ]
-            }
-        });
+    public submit(): void {
+        this.emit(UserEditComponent.EVENT_SUBMITTED);
     }
 }
 ```
 
-### BottomSheetBaseComponent
+```ts
+let config = new WindowConfig(false, true, 420);   // немодальное, с изменением размера, ширина 420
+config.id = 'userEdit' + id;
 
-Базовый класс для содержимого нижнего листа:
+if (this.windows.setOnTop(config.id)) {
+    return;   // окно уже открыто — поднимаем его вместо второго такого же
+}
 
-```typescript
-import { Component } from '@angular/core';
-import { BottomSheetBaseComponent } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-actions-sheet',
-    template: `
-        <mat-nav-list>
-            <mat-list-item *ngFor="let action of config.data.actions"
-                           (click)="select(action)">
-                <mat-icon matListItemIcon>{{ action.icon }}</mat-icon>
-                <span matListItemTitle>{{ action.label }}</span>
-            </mat-list-item>
-        </mat-nav-list>
-    `
-})
-export class ActionsSheetComponent extends BottomSheetBaseComponent<ActionsData> {
-    select(action: Action): void {
-        this.config.data.selected = action.value;
-        this.close();
+let content = this.windows.open(UserEditComponent, config);
+content.events.pipe(takeUntil(content.destroyed)).subscribe(event => {
+    if (event === UserEditComponent.EVENT_SUBMITTED) {
+        content.close();
     }
-
-    close(): void {
-        this.destroy();
-    }
-}
-
-interface ActionsData {
-    actions: Action[];
-    selected?: string;
-}
-
-interface Action {
-    icon: string;
-    label: string;
-    value: string;
-}
+});
 ```
 
-## CDK-таблицы
+Идентификатор окна нужен именно для этого: без него повторное действие открывает второе окно поверх первого.
 
-### CdkTableBaseComponent
+### Вопросы и сообщения
 
-Базовый компонент для таблиц с сортировкой и событиями:
-
-```typescript
-import { Component } from '@angular/core';
-import { CdkTableBaseComponent, ICdkTableColumn, ICdkTableSettings } from '@ts-core/angular-material';
-import { FilterableDataSourceMapCollection } from '@ts-core/common';
-
-@Component({
-    selector: 'app-users-table',
-    template: `
-        <table mat-table [dataSource]="source.itemsChanged" matSort (matSortChange)="sortEventHandler($event)">
-            <ng-container *ngFor="let column of columns" [matColumnDef]="column.name">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                    {{ column.label | viLanguage }}
-                </th>
-                <td mat-cell *matCellDef="let row"
-                    [class]="row | viCdkTableCellClassName:column"
-                    [style]="row | viCdkTableCellStyleName:column"
-                    (click)="cellClickHandler(row, column, $event)">
-                    {{ row | viCdkTableCellValue:column }}
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="columnNames"></tr>
-            <tr mat-row *matRowDef="let row; columns: columnNames"
-                [class]="row | viCdkTableRowClassName:rows"
-                (click)="rowClickHandler(row, $event)">
-            </tr>
-        </table>
-    `
-})
-export class UsersTableComponent extends CdkTableBaseComponent<UsersCollection, User> {
-    columns: ICdkTableColumn<User>[] = [
-        { name: 'id', label: 'ID' },
-        { name: 'name', label: 'Имя', format: (user) => user.firstName + ' ' + user.lastName },
-        { name: 'email', label: 'Email' },
-        { name: 'status', label: 'Статус', className: (user) => `status-${user.status}` }
-    ];
+```ts
+let question = this.windows.question('user.remove.confirmation');
+try {
+    await question.yesNotPromise;   // нажали «Да»
+} catch (error) {
+    // нажали «Нет» или закрыли окно
 }
+
+this.windows.info('user.saved');
 ```
 
-### CdkTablePaginableComponent
+Подписи кнопок берутся из переводов `general.yes`, `general.not`, `general.close`.
 
-Компонент таблицы с пагинацией:
+### Элементы управления окном
 
-```typescript
-import { Component, Input } from '@angular/core';
-import { CdkTablePaginableComponent } from '@ts-core/angular-material';
+| Селектор | Назначение |
+|---|---|
+| `[vi-window-drag-area]` | область перетаскивания окна |
+| `vi-window-close-element` | кнопка закрытия |
+| `vi-window-expand-element` | разворот на весь экран |
+| `vi-window-minimize-element` | сворачивание |
+| `vi-window-resize-element` | уголок изменения размера |
 
-@Component({
-    selector: 'app-paginable-table',
-    template: `
-        <vi-cdk-table-paginable
-            [table]="usersCollection"
-            [columns]="columns"
-            [settings]="tableSettings"
-            (rowClicked)="onRowClick($event)"
-            (cellClicked)="onCellClick($event)">
-        </vi-cdk-table-paginable>
-    `
-})
-export class MyTableComponent {
-    @Input() usersCollection: UsersCollection;
+## Уведомления
 
-    columns = [
-        { name: 'id', label: 'ID' },
-        { name: 'name', label: 'Имя' }
-    ];
+```ts
+this.notifications.info('order.created', null, undefined, { closeDuration: 4000 });
 
-    tableSettings = {
-        isInteractive: true,
-        noDataId: 'table.noData'
-    };
+let question = this.notifications.question('order.cancel.confirmation');
+await question.yesNotPromise;
+```
 
-    onRowClick(event: { data: User; event: MouseEvent }): void {
-        console.log('Row clicked:', event.data);
+Уведомления складываются в стопку и закрываются по таймеру `closeDuration` либо по нажатию. Своё содержимое — компонент, наследующий `INotificationContent`.
+
+## Нижние листы
+
+```ts
+let content = this.sheet.open(UserEditComponent, new WindowConfig(false, false, 420));
+```
+
+Компонент содержимого тот же, что и для окна, — интерфейс `IWindowContent` общий.
+
+## Портал
+
+`PortalService` выбирает способ показа по ширине экрана: на широком открывает окно, на узком — нижний лист.
+
+```ts
+this.portal.open(UserEditComponent, config);
+this.portal.question('user.remove.confirmation');
+```
+
+Граница — контрольная точка `SM` из `BootstrapBreakpointService`.
+
+## Таблицы
+
+### Источник данных
+
+Таблица работает с коллекцией из `@ts-core/common`. Приложение описывает запрос и разбор ответа:
+
+```ts
+export class UserMapCollection extends PaginableDataSourceMapCollection<IUser> {
+    constructor(private api: Client) {
+        super('id');
+        this.pageSize = 20;
     }
 
-    onCellClick(event: { data: User; column: string; event: MouseEvent }): void {
-        console.log('Cell clicked:', event.column, event.data);
+    protected async request(): Promise<IPagination<IUser>> {
+        return this.api.userList({ pageIndex: this.pageIndex, pageSize: this.pageSize });
+    }
+
+    protected parseItem(item: IUser): IUser {
+        return TransformUtil.toClass(User, item);
+    }
+
+    // страница заменяет предыдущую, а не добавляется к ней
+    protected override isNeedClearAfterLoad(): boolean {
+        return true;
     }
 }
 ```
 
-### CdkTableFilterableComponent
+`isNeedClearAfterLoad` определяет поведение при переходе на другую страницу: по умолчанию записи накапливаются — это нужно для бесконечной ленты. Для постраничной таблицы возвращайте `true`, иначе строки предыдущих страниц останутся на экране.
 
-Компонент таблицы с фильтрацией:
+### Настройки колонок
 
-```typescript
-import { Component } from '@angular/core';
-
-@Component({
-    selector: 'app-filterable-table',
-    template: `
-        <vi-cdk-table-filterable
-            [table]="usersCollection"
-            [columns]="columns"
-            [filterColumns]="['name', 'email']">
-        </vi-cdk-table-filterable>
-    `
-})
-export class FilterableTableComponent {
-    usersCollection: UsersCollection;
-    columns = [
-        { name: 'id', label: 'ID' },
-        { name: 'name', label: 'Имя' },
-        { name: 'email', label: 'Email' }
-    ];
-}
+```ts
+public settings: ICdkTableSettings<IUser> = {
+    columns: [
+        { name: 'name', headerId: 'user.name' },
+        { name: 'amount', headerId: 'user.amount', format: item => FinancePipe.format(item.amount, FinancePipe.DEFAULT_FORMAT) },
+        { name: 'status', headerId: 'user.status', cellClassName: item => item.isActive ? 'text-success' : null },
+        CdkTableColumnMenu
+    ]
+};
 ```
-
-### ICdkTableColumn
-
-Интерфейс колонки таблицы:
-
-```typescript
-interface ICdkTableColumn<U> {
-    name: string;                           // Имя поля
-    label?: string;                         // Текст заголовка
-    format?: (item: U) => string;           // Форматирование значения
-    className?: (item: U) => string;        // CSS класс ячейки
-    styleName?: (item: U) => object;        // Inline стили ячейки
-    sortable?: boolean;                     // Разрешена сортировка
-    sticky?: 'start' | 'end';               // Закрепление колонки
-}
-```
-
-### Пайпы для таблиц
 
 ```html
-<!-- Значение ячейки -->
-{{ row | viCdkTableCellValue:column }}
-
-<!-- Класс ячейки -->
-[class]="row | viCdkTableCellClassName:column"
-
-<!-- Стиль ячейки -->
-[style]="row | viCdkTableCellStyleName:column"
-
-<!-- Класс колонки -->
-[class]="column | viCdkTableColumnClassName"
-
-<!-- Стиль колонки -->
-[style]="column | viCdkTableColumnStyleName"
-
-<!-- Класс строки -->
-[class]="row | viCdkTableRowClassName:rows"
-
-<!-- Стиль строки -->
-[style]="row | viCdkTableRowStyleName:rows"
+<vi-cdk-table-paginable
+    class="d-block"
+    [table]="items"
+    [settings]="settings"
+    [paginator]="{ pageSizes: [10, 25], showFirstLastButtons: true }"
+    (cellClicked)="cellClickedHandler($event)"
+>
+    <button mat-icon-button (click)="items.reload()">
+        <mat-icon fontIcon="refresh"></mat-icon>
+    </button>
+</vi-cdk-table-paginable>
 ```
 
-## Директивы
+Содержимое между тегами попадает в строку пагинатора — туда обычно кладут кнопку обновления.
 
-### MenuTriggerForDirective
+### Постраничный вывод или лента
 
-Расширение matMenuTriggerFor для контекстного меню:
+| Компонент | Источник | Когда применять |
+|---|---|---|
+| `vi-cdk-table-paginable` | `PaginableDataSourceMapCollection` | обычная таблица со страницами |
+| `vi-cdk-table-paginable-bookmark` | `PaginableBookmarkDataSourceMapCollection` | листание по закладке, без общего количества |
+| `vi-cdk-table-filterable` | `FilterableDataSourceMapCollection` | список без страниц |
+
+## Вкладки и меню
+
+```ts
+this.tabs = new SelectListItems<ISelectListItem<string>>(language);
+this.tabs.add(new SelectListItem('user.general', 0, 'GENERAL'));
+this.tabs.add(new SelectListItem('user.history', 1, 'HISTORY'));
+this.tabs.complete(0);
+```
 
 ```html
-<div [viMenuTriggerFor]="menu" [viMenuData]="item">
-    Правый клик для меню
-</div>
+<vi-tab-group [list]="tabs"></vi-tab-group>
 
-<mat-menu #menu>
-    <ng-template matMenuContent let-data="data">
-        <button mat-menu-item (click)="edit(data)">Редактировать</button>
-        <button mat-menu-item (click)="delete(data)">Удалить</button>
-    </ng-template>
+<mat-menu #matMenu [overlapTrigger]="false">
+    <vi-menu-list [list]="menu" isMaterialIcon></vi-menu-list>
 </mat-menu>
+<span [vi-menu-trigger-for]="matMenu"></span>
 ```
 
-### VoiceRecognitionButtonDirective
+`[vi-menu-trigger-for]` позволяет открыть меню из кода — например, по нажатию на ячейку таблицы:
 
-Кнопка голосового ввода:
-
-```html
-<button mat-icon-button
-        viVoiceRecognitionButton
-        [targetInput]="searchInput"
-        (recognized)="onVoiceResult($event)">
-    <mat-icon>mic</mat-icon>
-</button>
-
-<input #searchInput [(ngModel)]="searchText">
-```
-
-```typescript
-@Component({...})
-export class MyComponent {
-    searchText = '';
-
-    onVoiceResult(text: string): void {
-        console.log('Распознано:', text);
+```ts
+public cellClickedHandler(item: ICdkTableCellEvent<IUser>): void {
+    if (item.column.name === CDK_TABLE_COLUMN_MENU_NAME) {
+        this.menu.refresh(item.data);
+        this.trigger.openMenuOn(item.event.target);
     }
 }
 ```
 
-### WindowDragAreaDirective
+Подписи вкладок и пунктов меню переводятся при смене языка, компоненты перерисовываются сами.
 
-Область для перетаскивания окна:
+## Переводы Material
 
-```html
-<div viWindowDragArea class="window-header">
-    <h2>Заголовок окна</h2>
-</div>
-```
+`LanguageMatPaginatorIntl` подставляет в пагинатор переводы:
 
-## Сервисы
-
-### PortalService
-
-Сервис для выбора между Window и BottomSheet в зависимости от размера экрана:
-
-```typescript
-import { PortalService } from '@ts-core/angular-material';
-
-@Component({...})
-export class MyComponent {
-    constructor(private portal: PortalService) {}
-
-    openPortal(): void {
-        // На мобильных откроет BottomSheet, на десктопе - Dialog
-        this.portal.open(MyContentComponent, {
-            data: { title: 'Заголовок' },
-            mobileBreakpoint: 'md'  // Bootstrap breakpoint
-        });
+```json
+{
+    "paginator": {
+        "firstPage": "Первая",
+        "lastPage": "Последняя",
+        "nextPage": "Следующая",
+        "previousPage": "Предыдущая",
+        "itemsPerPage": "Строк на странице",
+        "pageRange": "{current} из {total}"
     }
 }
 ```
 
-### BootstrapBreakpointService
+`LanguageMomentDateAdapter` синхронизирует локаль выбора даты с `LanguageService`:
 
-Сервис для определения текущего breakpoint Bootstrap:
-
-```typescript
-import { BootstrapBreakpointService } from '@ts-core/angular-material';
-
-@Component({...})
-export class MyComponent {
-    constructor(private breakpoint: BootstrapBreakpointService) {}
-
-    checkBreakpoint(): void {
-        console.log('Current breakpoint:', this.breakpoint.current);
-        // 'xs', 'sm', 'md', 'lg', 'xl', 'xxl'
-
-        if (this.breakpoint.isMobile) {
-            // Мобильная версия
-        }
-
-        if (this.breakpoint.isDesktop) {
-            // Десктоп версия
-        }
-    }
-}
+```ts
+providers: [{ provide: DateAdapter, useClass: LanguageMomentDateAdapter }]
 ```
 
-### ScrollService
+## Компоненты и директивы
 
-Сервис для управления прокруткой:
+| Селектор | Назначение |
+|---|---|
+| `vi-cdk-table-paginable` | таблица со страницами |
+| `vi-cdk-table-paginable-bookmark` | таблица с листанием по закладке |
+| `vi-cdk-table-filterable` | таблица без страниц |
+| `vi-tab-group` | вкладки поверх `SelectListItems` |
+| `vi-menu-list` | пункты меню поверх `ListItems` |
+| `vi-notification` | стандартное содержимое уведомления |
+| `[vi-menu-trigger-for]` | открытие меню из кода |
+| `[vi-window-drag-area]` | перетаскивание окна |
+| `[vi-voice-recognition-button]` | распознавание речи в поле ввода |
 
-```typescript
-import { ScrollService } from '@ts-core/angular-material';
+Сервисы: `PortalService`, `ScrollService`, `BootstrapBreakpointService`, `VoiceRecognitionService`.
 
-@Component({...})
-export class MyComponent {
-    constructor(private scroll: ScrollService) {}
+## Структура проекта
 
-    scrollToTop(): void {
-        this.scroll.scrollToTop();
-    }
-
-    scrollToElement(element: HTMLElement): void {
-        this.scroll.scrollTo(element);
-    }
-}
+```
+src/
+├── VIMatModule.ts          provideVIMat, viMatProviders
+├── _index.scss             примеси Sass, core()
+├── helper/                 функции цвета, типографики и границ
+├── bottomSheet/            нижние листы
+├── component/
+│   ├── cdk-table/          таблицы, пайпы ячеек, строк и колонок
+│   ├── menu-list/          пункты меню
+│   ├── tab-group/          вкладки
+│   └── ShellBaseComponent  каркас страницы
+├── directive/              меню и распознавание речи
+├── language/               переводы пагинатора и локаль дат
+├── notification/           уведомления
+├── service/                портал, прокрутка, контрольные точки
+└── window/                 окна и элементы управления ими
 ```
 
-### VoiceRecognitionService
+## История изменений
 
-Сервис распознавания голоса:
+### 22.0.1
 
-```typescript
-import { VoiceRecognitionService } from '@ts-core/angular-material';
+- Поддержка Angular 22 и TypeScript 6
+- Компоненты стали самостоятельными, `standalone: false` снят, у каждого свой список импортов
+- Добавлены `provideVIMat` и `viMatProviders` — настройка без `NgModule`
+- Шаблоны переведены на встроенный синтаксис управления `@if` и `@for`, `ngClass` и `ngStyle` заменены на `[class]` и `[style]`
+- Исправлена опечатка в шаблоне постраничной таблицы, из-за которой не отрисовывалась шапка
+- `vi-menu-list` и `vi-tab-group` перерисовываются при смене языка
+- `LanguageMomentDateAdapter` приведён к новому конструктору адаптера Material
+- Стили кладёт в пакет сама сборка, а не отдельный шаг копирования
 
-@Component({...})
-export class MyComponent {
-    constructor(private voice: VoiceRecognitionService) {}
-
-    startRecognition(): void {
-        if (!this.voice.isSupported) {
-            console.log('Распознавание голоса не поддерживается');
-            return;
-        }
-
-        this.voice.start('ru-RU');
-
-        this.voice.result.subscribe(text => {
-            console.log('Распознано:', text);
-        });
-
-        this.voice.error.subscribe(error => {
-            console.error('Ошибка:', error);
-        });
-    }
-
-    stopRecognition(): void {
-        this.voice.stop();
-    }
-}
-```
-
-## Примеры использования
-
-### Полная настройка приложения
-
-```typescript
-// app.module.ts
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { VIMatModule } from '@ts-core/angular-material';
-import { LoggerLevel } from '@ts-core/common';
-
-@NgModule({
-    imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
-        VIMatModule.forRoot({
-            loggerLevel: LoggerLevel.DEBUG,
-            languageOptions: {
-                defaultLocale: 'ru',
-                supportedLocales: ['ru', 'en']
-            },
-            themeOptions: {
-                defaultTheme: 'light',
-                supportedThemes: ['light', 'dark']
-            }
-        })
-    ],
-    bootstrap: [AppComponent]
-})
-export class AppModule {}
-```
-
-### Таблица пользователей с полным функционалом
-
-```typescript
-import { Component, ViewChild } from '@angular/core';
-import { WindowService, BottomSheetService } from '@ts-core/angular';
-import { CdkTablePaginableComponent, ICdkTableColumn } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-users-management',
-    template: `
-        <div class="toolbar">
-            <button mat-raised-button color="primary" (click)="addUser()">
-                <mat-icon>add</mat-icon>
-                Добавить пользователя
-            </button>
-        </div>
-
-        <vi-cdk-table-paginable
-            #table
-            [table]="usersCollection"
-            [columns]="columns"
-            [settings]="tableSettings"
-            (rowClicked)="editUser($event.data)"
-            (cellClicked)="onCellClick($event)">
-        </vi-cdk-table-paginable>
-    `
-})
-export class UsersManagementComponent {
-    @ViewChild('table') table: CdkTablePaginableComponent;
-
-    usersCollection: UsersCollection;
-
-    columns: ICdkTableColumn<User>[] = [
-        {
-            name: 'avatar',
-            label: '',
-            format: (user) => `<img src="${user.avatarUrl}" class="avatar">`
-        },
-        {
-            name: 'name',
-            label: 'user.name',
-            format: (user) => `${user.firstName} ${user.lastName}`,
-            sortable: true
-        },
-        {
-            name: 'email',
-            label: 'user.email',
-            sortable: true
-        },
-        {
-            name: 'role',
-            label: 'user.role',
-            className: (user) => `role-${user.role}`
-        },
-        {
-            name: 'status',
-            label: 'user.status',
-            className: (user) => user.isActive ? 'active' : 'inactive',
-            format: (user) => user.isActive ? 'Активен' : 'Неактивен'
-        },
-        {
-            name: 'actions',
-            label: '',
-            format: () => '<mat-icon>more_vert</mat-icon>'
-        }
-    ];
-
-    tableSettings = {
-        isInteractive: true,
-        noDataId: 'users.noData'
-    };
-
-    constructor(
-        private windowService: WindowService,
-        private bottomSheet: BottomSheetService
-    ) {}
-
-    addUser(): void {
-        this.windowService.open(UserEditDialogComponent, {
-            data: { user: null },
-            width: '600px'
-        });
-    }
-
-    editUser(user: User): void {
-        this.windowService.open(UserEditDialogComponent, {
-            data: { user },
-            width: '600px'
-        });
-    }
-
-    onCellClick(event: { data: User; column: string; event: MouseEvent }): void {
-        if (event.column === 'actions') {
-            event.event.stopPropagation();
-            this.showActionsMenu(event.data);
-        }
-    }
-
-    showActionsMenu(user: User): void {
-        this.bottomSheet.open(UserActionsSheetComponent, {
-            data: { user }
-        });
-    }
-}
-```
-
-### Диалог редактирования
-
-```typescript
-import { Component } from '@angular/core';
-import { WindowBaseComponent } from '@ts-core/angular-material';
-
-@Component({
-    selector: 'app-user-edit-dialog',
-    template: `
-        <h2 mat-dialog-title>
-            {{ config.data.user ? 'Редактирование' : 'Создание' }} пользователя
-        </h2>
-
-        <mat-dialog-content>
-            <form [formGroup]="form">
-                <mat-form-field appearance="outline">
-                    <mat-label>Имя</mat-label>
-                    <input matInput formControlName="firstName">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Фамилия</mat-label>
-                    <input matInput formControlName="lastName">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline">
-                    <mat-label>Роль</mat-label>
-                    <mat-select formControlName="role">
-                        <mat-option value="user">Пользователь</mat-option>
-                        <mat-option value="admin">Администратор</mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </form>
-        </mat-dialog-content>
-
-        <mat-dialog-actions align="end">
-            <button mat-button (click)="close()">Отмена</button>
-            <button mat-raised-button color="primary"
-                    [disabled]="form.invalid || isLoading"
-                    (click)="save()">
-                Сохранить
-            </button>
-        </mat-dialog-actions>
-    `
-})
-export class UserEditDialogComponent extends WindowBaseComponent<UserEditData> {
-    form: FormGroup;
-    isLoading = false;
-
-    constructor(private fb: FormBuilder, private userService: UserService) {
-        super();
-        this.initForm();
-    }
-
-    initForm(): void {
-        const user = this.config.data.user;
-        this.form = this.fb.group({
-            firstName: [user?.firstName || '', Validators.required],
-            lastName: [user?.lastName || '', Validators.required],
-            email: [user?.email || '', [Validators.required, Validators.email]],
-            role: [user?.role || 'user', Validators.required]
-        });
-    }
-
-    async save(): Promise<void> {
-        if (this.form.invalid) return;
-
-        this.isLoading = true;
-        try {
-            const userData = this.form.value;
-            if (this.config.data.user) {
-                await this.userService.update(this.config.data.user.id, userData);
-            } else {
-                await this.userService.create(userData);
-            }
-            this.config.data.saved = true;
-            this.close();
-        } finally {
-            this.isLoading = false;
-        }
-    }
-
-    close(): void {
-        this.destroy();
-    }
-}
-
-interface UserEditData {
-    user?: User;
-    saved?: boolean;
-}
-```
-
-## API Reference
-
-### VIMatModule
-
-| Метод | Описание |
-|-------|----------|
-| `forRoot(options?)` | Создать модуль с настройками |
-
-### WindowService (реализация)
-
-| Метод | Описание |
-|-------|----------|
-| `open(component, config)` | Открыть диалог |
-| `info(translationId, translation?, options?)` | Информационное окно |
-| `question(translationId, translation?, options?)` | Окно подтверждения |
-| `close(id)` | Закрыть окно |
-| `closeAll()` | Закрыть все окна |
-
-### CdkTableBaseComponent
-
-| Свойство/Метод | Тип | Описание |
-|----------------|-----|----------|
-| `table` | `M` | Источник данных |
-| `columns` | `ICdkTableColumn<U>[]` | Конфигурация колонок |
-| `settings` | `ICdkTableSettings<U>` | Настройки таблицы |
-| `selectedRow` | `U` | Выбранная строка |
-| `selectedRows` | `U[]` | Выбранные строки |
-| `rowClicked` | `EventEmitter` | Событие клика по строке |
-| `cellClicked` | `EventEmitter` | Событие клика по ячейке |
-| `render()` | `void` | Перерисовать таблицу |
-
-### BootstrapBreakpointService
-
-| Свойство | Тип | Описание |
-|----------|-----|----------|
-| `current` | `string` | Текущий breakpoint |
-| `isMobile` | `boolean` | Мобильное устройство (xs, sm) |
-| `isTablet` | `boolean` | Планшет (md) |
-| `isDesktop` | `boolean` | Десктоп (lg, xl, xxl) |
-
-## Связанные пакеты
-
-| Пакет | Описание |
-|-------|----------|
-| `@ts-core/angular` | Базовые Angular утилиты |
-| `@ts-core/frontend` | Фронтенд утилиты |
-| `@ts-core/common` | Общие классы и интерфейсы |
-| `@angular/material` | Angular Material компоненты |
-
-## Автор
-
-**Renat Gubaev** — [renat.gubaev@gmail.com](mailto:renat.gubaev@gmail.com)
-
-- GitHub: [ManhattanDoctor](https://github.com/ManhattanDoctor)
-- Репозиторий: [ts-core-frontend-angular-material](https://github.com/ManhattanDoctor/ts-core-frontend-angular-material)
+Публичный API не менялся: `VIMatModule.forRoot()` работает по-прежнему, селекторы и входы компонентов совпадают с предыдущими версиями.
 
 ## Лицензия
 
-ISC
+ISC © Renat Gubaev
