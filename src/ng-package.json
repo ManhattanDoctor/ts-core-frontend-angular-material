@@ -4,5 +4,9 @@
     "lib": {
         "entryFile": "public-api.ts"
     },
-    "allowedNonPeerDependencies": []
+    "allowedNonPeerDependencies": [],
+    "assets": [
+        "./*.scss",
+        "./helper/**/*.scss"
+    ]
 }

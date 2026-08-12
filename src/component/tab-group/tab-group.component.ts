@@ -1,8 +1,9 @@
 import { MatTabsModule } from '@angular/material/tabs';
 import { CommonModule } from '@angular/common';
-import { Component, Input, WritableSignal, booleanAttribute, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, WritableSignal, booleanAttribute, inject, signal } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { DestroyableContainer } from '@ts-core/common';
+import { LanguageService } from '@ts-core/frontend';
 import { SelectListItems, ISelectListItem } from '@ts-core/angular';
 import { Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -30,6 +31,7 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
     public selectedIndexSignal: WritableSignal<number>;
 
     protected listSubscription?: Subscription;
+    private cd: ChangeDetectorRef;
 
     // --------------------------------------------------------------------------
     //
@@ -41,6 +43,14 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
         super();
         this.isStretchSignal = signal(true);
         this.selectedIndexSignal = signal(null);
+        this.cd = inject(ChangeDetectorRef);
+
+        // Названия вкладок переводятся внутри списка, а он про отрисовку ничего не знает:
+        // без этого при смене языка на экране остались бы прежние слова
+        let language = inject(LanguageService, { optional: true });
+        if (!_.isNil(language)) {
+            language.completed.pipe(takeUntil(this.destroyed)).subscribe(() => this.cd.markForCheck());
+        }
     }
 
     // --------------------------------------------------------------------------
@@ -97,6 +107,7 @@ export class TabGroupComponent<T = any> extends DestroyableContainer {
         }
         super.destroy();
 
+        this.cd = null;
         this.list = null;
         this.isStretchSignal = null;
         this.selectedIndexSignal = null;
