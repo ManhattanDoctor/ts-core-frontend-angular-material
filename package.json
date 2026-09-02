@@ -54,28 +54,5 @@
         "prettier": "^3.4.2",
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3"
-    },
-    "description": "Angular Material implementation of the ts-core window, notification, bottom sheet and table abstractions, with paginated tables, tabs, menus and Sass mixins",
-    "keywords": [
-        "typescript",
-        "angular",
-        "angular-material",
-        "material",
-        "frontend",
-        "window",
-        "dialog",
-        "notification",
-        "bottom-sheet",
-        "table",
-        "pagination",
-        "sass"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ManhattanDoctor/ts-core-frontend-angular-material.git"
-    },
-    "bugs": {
-        "url": "https://github.com/ManhattanDoctor/ts-core-frontend-angular-material/issues"
-    },
-    "homepage": "https://github.com/ManhattanDoctor/ts-core-frontend-angular-material#readme"
+    }
 }
